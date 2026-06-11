@@ -7,8 +7,195 @@ datasource db {
   provider = "postgresql"
 }
 
-model Todo {
-  id        Int      @id @default(autoincrement())
-  title     String
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  email         String   @unique
+  image         String?
+  role          UserRole @default(STUDENT)
+  studentId     String?
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // better-auth relations
+  sessions Session[]
+  accounts Account[]
+
+  taughtCourses Course[]     @relation("TeacherCourses")
+  enrollments   Enrollment[]
+
+  assignments Assignment[] @relation("TeacherAssignments")
+
+  submissions Submission[]
+
+  notifications Notification[]
+
+  @@map("user")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  code        String
+  name        String
+  description String?
+  teacherId   String
+  teacher     User         @relation("TeacherCourses", fields: [teacherId], references: [id])
+  assignments Assignment[]
+  enrollments Enrollment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([teacherId, code])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  courseId  String
+  studentId String
+  joinedAt  DateTime @default(now())
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id])
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+}
+
+model Assignment {
+  id                  String                 @id @default(cuid())
+  title               String
+  description         String?
+  assignmentCode      String                 @unique
+  maxScore            Int                    @default(100)
+  dueAt               DateTime
+  allowedFormats      SubmissionFormat[]
+  allowLateSubmission Boolean                @default(false)
+  status              AssignmentStatus       @default(ACTIVE)
+  courseId            String
+  teacherId           String
+  course              Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher             User                   @relation("TeacherAssignments", fields: [teacherId], references: [id])
+  attachments         AssignmentAttachment[]
+  submissions         Submission[]
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  @@index([courseId])
+  @@index([teacherId])
+}
+
+model AssignmentAttachment {
+  id           String     @id @default(cuid())
+  assignmentId String
+  url          String
+  fileType     String
+  position     Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  assignmentId String
+  studentId    String
+  grade        Float?
+  feedback     String?
+  submittedAt  DateTime         @default(now())
+  status       SubmissionStatus @default(SUBMITTED)
+  assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      User             @relation(fields: [studentId], references: [id])
+
+  attachments SubmissionAttachment[]
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+}
+
+model SubmissionAttachment {
+  id           String     @id @default(cuid())
+  submissionId String
+  url          String
+  fileType     String
+  position     Int
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+}
+
+enum SubmissionFormat {
+  IMAGE
+  PDF
+  DOCUMENT
 }
