@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { Spinner } from "#/components/ui/spinner"
 import { Sidebar, SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
-import { Header } from "#/components/sections/header"
+import { AppHeader } from "#/components/sections/app-header"
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -25,7 +25,7 @@ function AppLayout() {
     <SidebarProvider>
       <Sidebar variant="inset" />
       <SidebarInset className="">
-        <Header />
+        <AppHeader />
         <main className="py-4 [&>section]:px-4">
           <Outlet />
         </main>

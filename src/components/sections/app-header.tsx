@@ -15,6 +15,8 @@ import { ThemeToggle } from "../theme-toggle"
 import { Skeleton } from "../ui/skeleton"
 import { IconLogout, IconUser } from "@tabler/icons-react"
 import getInitials from "#/lib/name"
+import { SidebarTrigger } from "../ui/sidebar"
+import { Separator } from "../ui/separator"
 
 function AvatarBtn({
   session,
@@ -92,14 +94,19 @@ function AvatarBtn({
   )
 }
 
-export function Header(): JSX.Element {
+export function AppHeader(): JSX.Element {
   const { data: session, isPending: authPending } = authClient.useSession()
 
   return (
     <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl px-4 py-2">
-      <span className="font-logo text-primary text-2xl font-extrabold lg:text-3xl">
+      {/* <span className="font-logo text-primary text-2xl font-extrabold lg:text-3xl">
         mìlà
-      </span>
+      </span> */}
+      <div className="flex h-full items-center">
+        <SidebarTrigger className="-ml-1 [&>svg]:size-5!" />
+        <Separator orientation="vertical" className="mx-2 my-auto h-8/10" />
+      </div>
+
       <div className="flex items-center gap-2">
         <ThemeToggle className="[&>svg]:size-6" />
         <AvatarBtn session={session} authPending={authPending} />
