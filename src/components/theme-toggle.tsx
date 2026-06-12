@@ -1,16 +1,17 @@
 import { cn } from "#/lib/utils"
-import { useTheme } from "./theme-provider"
+import { useSpacemanTheme } from "@space-man/react-theme-animation"
 import { Button } from "./ui/button"
 
 const ThemeToggle = ({ className }: { className?: string }) => {
-  const { resolvedTheme: theme, setTheme } = useTheme()
+  const { ref, toggleTheme } = useSpacemanTheme()
 
   return (
     <Button
+      ref={ref}
       variant="ghost"
       size="icon-lg"
       className={cn("rounded-full", className)}
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      onClick={() => toggleTheme()}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

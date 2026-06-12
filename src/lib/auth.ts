@@ -16,21 +16,14 @@ export const auth = betterAuth({
         defaultValue: "STUDENT",
         input: false,
       },
-      username: {
-        type: "string",
-        required: true,
-        input: true,
-      },
       firstName: {
         type: "string",
         required: true,
-        defaultValue: null,
         input: true,
       },
       lastName: {
         type: "string",
         required: true,
-        defaultValue: null,
         input: true,
       },
     },

@@ -6,7 +6,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeProvider } from "#/components/theme-provider"
+import { SpacemanThemeProvider } from "@space-man/react-theme-animation"
 import { TooltipProvider } from "#/components/ui/tooltip"
 import { Toaster } from "#/components/ui/sonner"
 import { getSession } from "#/lib/auth-session"
@@ -54,7 +54,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="dark font-sans antialiased">
-        <ThemeProvider defaultTheme="system" storageKey="theme">
+        <SpacemanThemeProvider
+          defaultTheme="system"
+          defaultColorTheme="default"
+        >
           <TooltipProvider>
             <QueryClientProvider client={queryClient}>
               {children}
@@ -62,7 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           </TooltipProvider>
 
           <Toaster />
-        </ThemeProvider>
+        </SpacemanThemeProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

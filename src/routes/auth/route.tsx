@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth")({
 
 function RouteComponent() {
   return (
-    <main className="px-4 pb-4">
+    <main className="p-4">
       <Outlet />
     </main>
   )

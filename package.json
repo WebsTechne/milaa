@@ -29,6 +29,7 @@
     "@fontsource-variable/noto-sans": "^5.2.10",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
+    "@space-man/react-theme-animation": "^2.1.0",
     "@supabase/supabase-js": "^2.108.1",
     "@tabler/icons-react": "^3.44.0",
     "@tailwindcss/vite": "^4.1.18",

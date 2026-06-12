@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { prisma } from "#/db"
 
 const updateUserProfile = createServerFn({ method: "POST" })
-  .inputValidator(
+  .validator(
     (data: {
       userId: string
       firstName: string
@@ -22,7 +22,7 @@ const updateUserProfile = createServerFn({ method: "POST" })
   })
 
 const deleteUser = createServerFn({ method: "POST" })
-  .inputValidator((data: { userId: string }) => data)
+  .validator((data: { userId: string }) => data)
   .handler(async ({ data }) => {
     return prisma.user.delete({
       where: { id: data.userId },

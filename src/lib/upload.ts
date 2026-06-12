@@ -1,7 +1,7 @@
 import { supabase } from "./supabase"
 import imageCompression from "browser-image-compression"
 
-const PAGE_MAX_MB = 5.5 // just under the 6MB bucket limit
+const PAGE_MAX_MB = 9.5 // just under the 10MB bucket limit
 const AVATAR_MAX_MB = 4 // because I feel like 4mb
 
 async function compressIfNeeded(file: File, maxSizeMB: number): Promise<File> {
@@ -42,7 +42,14 @@ async function uploadAvatar(file: File, userId: string) {
   return publicData.publicUrl
 }
 
-async function uploadPage(file: File, collectionId: string, position: number) {
+type Attachment = "assignment" | "submission"
+
+async function uploadPage(
+  type: Attachment,
+  file: File,
+  collectionId: string,
+  position: number,
+) {
   const processed = await compressIfNeeded(file, PAGE_MAX_MB)
 
   const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "jpg"
@@ -50,7 +57,11 @@ async function uploadPage(file: File, collectionId: string, position: number) {
   const path = `${collectionId}/${position}.${ext}`
 
   const { data, error } = await supabase.storage
-    .from("pages")
+    .from(
+      type === "assignment"
+        ? "assignment-attachments"
+        : "submission-attachments",
+    )
     .upload(path, processed, {
       upsert: true,
       contentType: processed.type || `image/${ext}`,
@@ -69,6 +80,7 @@ async function uploadPage(file: File, collectionId: string, position: number) {
 }
 
 async function uploadPages(
+  type: Attachment,
   files: File[],
   collectionId: string,
   startPosition: number = 0,
@@ -78,10 +90,15 @@ async function uploadPages(
 
   const results = await Promise.all(
     files.map(async (file, index) => {
-      const result = await uploadPage(file, collectionId, startPosition + index)
+      const result = await uploadPage(
+        type,
+        file,
+        collectionId,
+        startPosition + index,
+      )
       uploaded++
       onProgress?.(uploaded, files.length)
-      return result // 👈 return full result including width/height
+      return result
     }),
   )
 
