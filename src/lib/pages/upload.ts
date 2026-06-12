@@ -1,4 +1,4 @@
-import { supabase } from "./supabase"
+import { supabase } from "../supabase"
 import imageCompression from "browser-image-compression"
 
 const PAGE_MAX_MB = 9.5 // just under the 10MB bucket limit

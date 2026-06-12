@@ -53,7 +53,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="dark font-sans antialiased">
+      <body className="font-sans antialiased">
         <SpacemanThemeProvider
           defaultTheme="system"
           defaultColorTheme="default"
