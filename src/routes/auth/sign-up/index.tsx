@@ -39,15 +39,6 @@ export const Route = createFileRoute("/auth/sign-up/")({
   }),
 })
 
-export type SignUpValues = {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  confirmPassword: string
-  image: File | undefined
-}
-
 const formSchema = z
   .object({
     firstName: z.string().min(1, "First name is required"),
@@ -66,7 +57,6 @@ function SignupPage() {
   const navigate = useNavigate()
   const search = Route.useSearch()
 
-  const [error, setError] = useState("")
   const [view, setView] = useState(false)
   const [confirmView, setConfirmView] = useState(false)
   const [step, setStep] = useState(1)
@@ -168,7 +158,7 @@ function SignupPage() {
 
   return (
     <div className="*:mx-auto">
-      <Card size="default" className="relative z-1000 py-6! sm:max-w-md">
+      <Card className="relative z-1000 py-6! sm:max-w-md">
         <CardHeader>
           <CardTitle className="text-lg! font-bold">
             Create your account
@@ -413,12 +403,6 @@ function SignupPage() {
                     )
                   }}
                 />
-
-                {error && (
-                  <Field>
-                    <FieldError className="text-center">{error}</FieldError>
-                  </Field>
-                )}
 
                 <Field orientation="horizontal" className="gap-5">
                   <Button
