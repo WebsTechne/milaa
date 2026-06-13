@@ -81,7 +81,7 @@ function SigninPage() {
         }
 
         toast.dismiss("sign-in-toast")
-        toast.success("Sign in successful")
+        toast.success("Welcome back!")
         navigate({ to: search.redirect ?? "/" })
       } catch (err) {
         console.error(err)

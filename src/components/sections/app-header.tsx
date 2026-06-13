@@ -103,7 +103,7 @@ export function AppHeader(): JSX.Element {
         mìlà
       </span> */}
       <div className="flex h-full items-center">
-        <SidebarTrigger className="-ml-1 [&>svg]:size-5!" />
+        <SidebarTrigger size="icon" className="-ml-1 [&>svg]:size-5!" />
         <Separator orientation="vertical" className="mx-2 my-auto h-8/10" />
       </div>
 
