@@ -25,7 +25,7 @@ import {
 
 const NAV_LINKS = [
   {
-    title: "Dashboard",
+    title: "Overview",
     to: "/",
     exactPath: true,
     icon: IconLayoutDashboard,

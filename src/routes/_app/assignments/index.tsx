@@ -10,9 +10,6 @@ export const Route = createFileRoute("/_app/assignments/")({
   loader: async () => {
     return await getSession()
   },
-  staticData: {
-    title: "Assignments",
-  },
   component: AttendancePage,
 })
 
@@ -22,7 +19,7 @@ function AttendancePage() {
 
   useEffect(() => {
     setTitleSlot("Assignments")
-
+    // cleanup
     return () => {
       setTitleSlot(null)
     }

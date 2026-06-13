@@ -1,4 +1,8 @@
 function StudentAssignmentsPage() {
-  return <></>
+  return (
+    <>
+      <section>Student Assignments Page...</section>
+    </>
+  )
 }
 export { StudentAssignmentsPage }

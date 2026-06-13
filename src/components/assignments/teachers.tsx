@@ -1,4 +1,8 @@
 function TeacherAssignmentsPage() {
-  return <></>
+  return (
+    <>
+      <section>Teacher Assignments Page...</section>
+    </>
+  )
 }
 export { TeacherAssignmentsPage }
