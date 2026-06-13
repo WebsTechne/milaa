@@ -17,6 +17,7 @@ import { IconLogout, IconUser } from "@tabler/icons-react"
 import getInitials from "#/lib/name"
 import { SidebarTrigger } from "../ui/sidebar"
 import { Separator } from "../ui/separator"
+import { useHeaderStore } from "#/lib/header-store"
 
 function AvatarBtn({
   session,
@@ -76,6 +77,7 @@ function AvatarBtn({
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={10} className="min-w-37.5">
         <DropdownMenuItem
+          nativeButton={false}
           render={<Link to="/profile" className="cursor-pointer" />}
         >
           <IconUser strokeWidth={2} />
@@ -96,15 +98,18 @@ function AvatarBtn({
 
 export function AppHeader(): JSX.Element {
   const { data: session, isPending: authPending } = authClient.useSession()
+	const { titleSlot } = useHeaderStore()
+  console.log(titleSlot)
 
   return (
-    <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl px-4 py-2">
+    <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl border-b px-4 py-2">
       {/* <span className="font-logo text-primary text-2xl font-extrabold lg:text-3xl">
         mìlà
       </span> */}
       <div className="flex h-full items-center">
         <SidebarTrigger size="icon" className="-ml-1 [&>svg]:size-5!" />
         <Separator orientation="vertical" className="mx-2 my-auto h-8/10" />
+        <span>{titleSlot}</span>
       </div>
 
       <div className="flex items-center gap-2">

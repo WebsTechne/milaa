@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { Spinner } from "#/components/ui/spinner"
-import { Sidebar, SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
 import { AppHeader } from "#/components/sections/app-header"
 import { AppSidebar } from "#/components/sections/app-sidebar"
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_app")({
       <Spinner className="size-6" />
     </div>
   ),
-  // pendingMs: 300, // only show pending if it takes more than 300ms
+  pendingMs: 300, // only show pending if it takes more than 300ms
   beforeLoad: async ({ context, location }) => {
     if (!context.session)
       throw redirect({

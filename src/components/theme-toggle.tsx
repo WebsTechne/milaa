@@ -1,10 +1,10 @@
 import { cn } from "#/lib/utils"
-import { useSpacemanTheme } from "@space-man/react-theme-animation"
+import { useTanStackTheme } from "@space-man/react-theme-animation"
 import { Button } from "./ui/button"
 import { IconBrightness } from "@tabler/icons-react"
 
 const ThemeToggle = ({ className }: { className?: string }) => {
-  const { ref, toggleTheme } = useSpacemanTheme()
+  const { ref, toggleTheme } = useTanStackTheme()
 
   return (
     <Button

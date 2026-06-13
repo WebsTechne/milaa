@@ -67,10 +67,10 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="in-data-[state=collapsed]:flex-center in-data-[state=collapsed]:p-0! data-[slot=sidebar-menu-button]:p-1.5!"
               render={<Link to="/" />}
+              className="in-data-[state=collapsed]:flex-center in-data-[state=collapsed]:p-0! data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <span className="font-logo text-primary in-data-[state=collapsed]:flex-center text-2xl font-extrabold">
+              <span className="font-logo text-primary in-data-[state=collapsed]:flex-center font-extrabold not-md:text-2xl md:text-xl">
                 m<span className="in-data-[state=collapsed]:hidden">ìlà</span>
               </span>
             </SidebarMenuButton>
@@ -89,10 +89,11 @@ export function AppSidebar() {
                     : pathname.startsWith(to)
 
                   return (
-                    <SidebarMenuItem>
+                    <SidebarMenuItem key={`${to}-${title}`}>
                       <SidebarMenuButton
                         size="default"
                         isActive={isActive}
+                        tooltip={title}
                         render={
                           <Link to={to} className="text-base! not-md:h-10" />
                         }
