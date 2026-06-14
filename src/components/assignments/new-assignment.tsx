@@ -108,7 +108,7 @@ export function NewAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent>
+      <SheetContent className="w-full! gap-0! not-md:max-w-md!">
         <SheetHeader>
           <SheetTitle>Create Assignment</SheetTitle>
           <SheetDescription>

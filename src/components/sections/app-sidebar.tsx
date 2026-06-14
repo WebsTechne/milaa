@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "../ui/sidebar"
 import {
   IconBell,
@@ -60,6 +61,7 @@ const NAV_LINKS = [
 
 export function AppSidebar() {
   const { pathname } = useLocation()
+  const { setOpenMobile } = useSidebar()
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -67,7 +69,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              render={<Link to="/" />}
+              render={<Link to="/" onClick={() => setOpenMobile(false)} />}
               className="in-data-[state=collapsed]:flex-center in-data-[state=collapsed]:p-0! data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <span className="font-logo text-primary in-data-[state=collapsed]:flex-center font-extrabold not-md:text-2xl md:text-xl">
@@ -95,7 +97,11 @@ export function AppSidebar() {
                         isActive={isActive}
                         tooltip={title}
                         render={
-                          <Link to={to} className="text-base! not-md:h-10" />
+                          <Link
+                            to={to}
+                            className="text-base! not-md:h-10"
+                            onClick={() => setOpenMobile(false)}
+                          />
                         }
                       >
                         {FillIcon && isActive ? (
