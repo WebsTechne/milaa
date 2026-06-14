@@ -98,8 +98,8 @@ function AvatarBtn({
 
 export function AppHeader(): JSX.Element {
   const { data: session, isPending: authPending } = authClient.useSession()
-	const { titleSlot } = useHeaderStore()
-  console.log(titleSlot)
+  const { titleSlot } = useHeaderStore()
+  // console.log(titleSlot)
 
   return (
     <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl border-b px-4 py-2">
