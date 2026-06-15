@@ -36,7 +36,7 @@ import { toast } from "sonner"
 import { IconCopy } from "@tabler/icons-react"
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createCourse, getCourses } from "#/server/ courses"
+import { createCourse, getCourses } from "#/server/courses"
 import { generateCode } from "#/lib/generate-code"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
 
