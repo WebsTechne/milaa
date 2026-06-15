@@ -113,6 +113,20 @@ export function NewAssignmentSheet({
     }
   }
 
+  //   onClick={async () => {
+  //     const success = await copyToClipboard(assignmentCode)
+
+  //     if (success) {
+  //       toast.success("Code copied", {
+  //         description:
+  //           "Students with this code can view and submit this assignment",
+  //       })
+  //     } else {
+  //       toast.error("Failed to copy code")
+  //     }
+  // 	}
+  // }
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
       <SheetContent className="w-full! gap-0! not-md:max-w-md!">
@@ -252,29 +266,6 @@ export function NewAssignmentSheet({
                 }}
               />
 
-              <Field>
-                <FieldLabel>Assignment Code</FieldLabel>
-                <InputGroup className="h-10">
-                  <InputGroupInput readOnly value={assignmentCode} />
-                  <InputGroupButton
-                    onClick={async () => {
-                      const success = await copyToClipboard(assignmentCode)
-
-                      if (success) {
-                        toast.success("Code copied", {
-                          description:
-                            "Students with this code can view and submit this assignment",
-                        })
-                      } else {
-                        toast.error("Failed to copy code")
-                      }
-                    }}
-                  >
-                    <IconCopy strokeWidth={2} />
-                  </InputGroupButton>
-                </InputGroup>
-              </Field>
-
               <form.Field
                 name="maxScore"
                 children={(field) => {
@@ -306,10 +297,18 @@ export function NewAssignmentSheet({
         </form>
 
         <SheetFooter>
-          <SheetClose render={<Button type="button" variant="secondary" />}>
+          <SheetClose
+            render={
+              <Button type="button" variant="secondary" className="h-10" />
+            }
+          >
             Cancel
           </SheetClose>
-          <Button type="button" onClick={() => form.handleSubmit()}>
+          <Button
+            type="button"
+            className="h-10"
+            onClick={() => form.handleSubmit()}
+          >
             Create
           </Button>
         </SheetFooter>
