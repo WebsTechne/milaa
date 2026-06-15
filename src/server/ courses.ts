@@ -3,7 +3,7 @@ import { prisma } from "#/db"
 import { getSession } from "#/lib/auth-session"
 
 const createCourse = createServerFn({ method: "POST" })
-  .inputValidator((data: { code: string; name: string }) => data)
+  .validator((data: { code: string; name: string }) => data)
   .handler(async ({ data }) => {
     const session = await getSession()
     if (!session) throw new Error("Unauthorized")
@@ -22,9 +22,10 @@ const createCourse = createServerFn({ method: "POST" })
 const getCourses = createServerFn({ method: "GET" }).handler(async () => {
   try {
     const data = await prisma.course.findMany({
-      select: { code: true, name: true },
+      select: { id: true, code: true, name: true },
       orderBy: { name: "asc" },
     })
+    // console.table(data)
     return data
   } catch (err) {
     console.error("❌ getCourses error:", err)

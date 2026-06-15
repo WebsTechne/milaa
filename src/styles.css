@@ -131,6 +131,14 @@
 }
 
 @layer base {
+  ::selection {
+    @apply text-primary bg-primary/25;
+  }
+
+  .dark ::selection {
+    @apply text-primary-foreground bg-primary/80;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

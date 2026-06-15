@@ -17,16 +17,11 @@ import {
 } from "#/components/ui/field"
 import {
   Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
 } from "#/components/ui/combobox"
 import {
   InputGroup,
@@ -38,11 +33,12 @@ import { Textarea } from "../ui/textarea"
 import { Button } from "#/components/ui/button"
 import { Spinner } from "#/components/ui/spinner"
 import { toast } from "sonner"
-import { authClient } from "#/lib/auth-client"
 import { IconCopy } from "@tabler/icons-react"
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createCourse, getCourses } from "#/server/ courses"
+import { generateCode } from "#/lib/generate-code"
+import { copyToClipboard } from "#/lib/copy-to-clipboard"
 
 export function NewAssignmentSheet({
   open,
@@ -52,14 +48,15 @@ export function NewAssignmentSheet({
   onOpenChange: (v: boolean) => void
 }) {
   const queryClient = useQueryClient()
-  const { data: courses = [], isLoading: isLoadingCourses } = useQuery({
+  const { data: courses = [], isPending: isPendingCourses } = useQuery({
     queryKey: ["courses"],
-    queryFn: () => getCourses(),
+    queryFn: getCourses,
   })
 
   type Course = (typeof courses)[number]
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [assignmentCode, setAssignmentCode] = useState<string>("")
 
   const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -86,7 +83,6 @@ export function NewAssignmentSheet({
     onSubmit: async ({ value }) => {},
   })
 
-  const anchor = useComboboxAnchor()
   const comboboxChipsInputRef = useRef<HTMLInputElement | null>(null)
 
   const handleCreateCourse = async () => {
@@ -94,7 +90,7 @@ export function NewAssignmentSheet({
     const input = comboboxChipsInputRef.current?.value.trim() ?? ""
     try {
       await createCourse({
-        data: { code: input.toLowerCase(), name: input },
+        data: { code: input.toLowerCase(), name: input.toUpperCase() },
       })
       queryClient.invalidateQueries({ queryKey: ["courses"] })
       toast.dismiss("create-course-toast")
@@ -103,6 +99,17 @@ export function NewAssignmentSheet({
       toast.dismiss("create-course-toast")
       toast.error("Failed to create course.")
       console.error("❌ createCourse error:", err)
+    }
+  }
+
+  const handleCreateCode = async (course: string) => {
+    try {
+      const code = await generateCode({ data: { course } })
+
+      setAssignmentCode(code)
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to generate code")
     }
   }
 
@@ -198,16 +205,22 @@ export function NewAssignmentSheet({
                       <Combobox
                         items={courses}
                         value={selectedCourse}
-                        itemToStringValue={(course) => course.name}
+                        itemToStringLabel={(course) => course.name}
                         autoHighlight
                         onValueChange={(selected) => {
                           setSelectedCourse(selected)
                           field.handleChange(selected?.code ?? "")
+                          if (!selected) return
+                          handleCreateCode(selected.code)
                         }}
                       >
-                        <ComboboxInput ref={comboboxChipsInputRef} />
-                        <ComboboxContent anchor={anchor}>
-                          {isLoadingCourses ? (
+                        <ComboboxInput
+                          ref={comboboxChipsInputRef}
+                          className="h-10"
+                          uppercase
+                        />
+                        <ComboboxContent>
+                          {isPendingCourses ? (
                             <ComboboxList>
                               <div className="flex-center h-25 w-full">
                                 <Spinner />
@@ -242,8 +255,21 @@ export function NewAssignmentSheet({
               <Field>
                 <FieldLabel>Assignment Code</FieldLabel>
                 <InputGroup className="h-10">
-                  <InputGroupInput disabled />
-                  <InputGroupButton>
+                  <InputGroupInput readOnly value={assignmentCode} />
+                  <InputGroupButton
+                    onClick={async () => {
+                      const success = await copyToClipboard(assignmentCode)
+
+                      if (success) {
+                        toast.success("Code copied", {
+                          description:
+                            "Students with this code can view and submit this assignment",
+                        })
+                      } else {
+                        toast.error("Failed to copy code")
+                      }
+                    }}
+                  >
                     <IconCopy strokeWidth={2} />
                   </InputGroupButton>
                 </InputGroup>
@@ -263,7 +289,9 @@ export function NewAssignmentSheet({
                         type="number"
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(e) =>
+                          field.handleChange(e.target.valueAsNumber)
+                        }
                         aria-invalid={isInvalid}
                         placeholder="Max score"
                         autoComplete="off"
@@ -281,7 +309,9 @@ export function NewAssignmentSheet({
           <SheetClose render={<Button type="button" variant="secondary" />}>
             Cancel
           </SheetClose>
-          <Button type="submit">Create</Button>
+          <Button type="button" onClick={() => form.handleSubmit()}>
+            Create
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
