@@ -1,5 +1,9 @@
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
+import { useRef, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { createCourse, getCourses } from "#/server/courses"
+import { generateCode } from "#/lib/generate-code"
 import {
   Sheet,
   SheetClose,
@@ -23,22 +27,29 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "#/components/ui/combobox"
-import {
-  InputGroup,
-  InputGroupButton,
-  InputGroupInput,
-} from "../ui/input-group"
 import { Input } from "#/components/ui/input"
 import { Textarea } from "../ui/textarea"
 import { Button } from "#/components/ui/button"
 import { Spinner } from "#/components/ui/spinner"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select"
+import { DropZone } from "../drop-zone"
 import { toast } from "sonner"
-import { IconCopy } from "@tabler/icons-react"
-import { useRef, useState } from "react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createCourse, getCourses } from "#/server/courses"
-import { generateCode } from "#/lib/generate-code"
-import { copyToClipboard } from "#/lib/copy-to-clipboard"
+import { addDays, addWeeks, addMonths } from "date-fns"
+
+import { SubmissionFormat as PrismaSubmissionFormat } from "#/generated/prisma/enums"
+import { DateTimePicker } from "../ui/date-time-picker"
+import { isDueIn } from "#/lib/due-in"
+
+const SubmissionFormat = Object.values(PrismaSubmissionFormat).map(
+  (format) => ({ label: format, value: format }),
+)
 
 export function NewAssignmentSheet({
   open,
@@ -56,21 +67,27 @@ export function NewAssignmentSheet({
   type Course = (typeof courses)[number]
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
-  const [assignmentCode, setAssignmentCode] = useState<string>("")
+  const [month, setMonth] = useState(new Date())
 
   const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
+    images: z.array(z.file()).min(1, "Add at least one image").optional(),
     course: z.string().min(1, "Select a course"),
     maxScore: z.number().min(1, "Max score is required"),
+    submissionFormat: z.string().min(1, "Submission format is required"),
+    dueAt: undefined as Date | undefined,
   })
 
   const form = useForm({
     defaultValues: {
       title: "",
       description: "",
+      images: [] as File[],
       course: "",
       maxScore: 0,
+      submissionFormat: "",
+      dueAt: undefined as Date | undefined,
     },
     validators: {
       onSubmit: ({ value }) => {
@@ -84,6 +101,33 @@ export function NewAssignmentSheet({
   })
 
   const comboboxChipsInputRef = useRef<HTMLInputElement | null>(null)
+
+  const setDueIn = (
+    field: ReturnType<typeof form.Field>, // or just use field directly
+    amount: number,
+    unit: "days" | "weeks" | "months",
+  ) => {
+    const now = new Date()
+    let date = now
+
+    switch (unit) {
+      case "days":
+        date = addDays(now, amount)
+        break
+      case "weeks":
+        date = addWeeks(now, amount)
+        break
+      case "months":
+        date = addMonths(now, amount)
+        break
+    }
+
+    // Optional: default due time
+    date.setHours(23, 59, 0, 0)
+
+    field.handleChange(date)
+    setMonth(date)
+  }
 
   const handleCreateCourse = async () => {
     toast.loading("Creating course...", { id: "create-course-toast" })
@@ -105,8 +149,6 @@ export function NewAssignmentSheet({
   const handleCreateCode = async (course: string) => {
     try {
       const code = await generateCode({ data: { course } })
-
-      setAssignmentCode(code)
     } catch (error) {
       console.error(error)
       toast.error("Failed to generate code")
@@ -129,7 +171,7 @@ export function NewAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent className="w-full! gap-0! not-md:max-w-md!">
+      <SheetContent className="w-full! max-w-lg! gap-0!">
         <SheetHeader>
           <SheetTitle>Create Assignment</SheetTitle>
           <SheetDescription>
@@ -192,7 +234,7 @@ export function NewAssignmentSheet({
                         aria-invalid={isInvalid}
                         placeholder="Assignment description..."
                         autoComplete="off"
-                        className="h-10"
+                        className="min-h-20 resize-none"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -203,18 +245,27 @@ export function NewAssignmentSheet({
               />
 
               <form.Field
+                name="images"
+                children={(field) => (
+                  <Field className="gap-2">
+                    <FieldLabel htmlFor={field.name}>
+                      Assignment Images
+                    </FieldLabel>
+                    <DropZone
+                      onFiles={(files) => field.handleChange(files)}
+                      multiple
+                    />
+                  </Field>
+                )}
+              />
+
+              <form.Field
                 name="course"
-                // validators={{
-                //   onSubmit: ({ value }) =>
-                //     value.length === 0
-                //       ? "Select at least one course"
-                //       : undefined,
-                // }}
                 children={(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
-                    <Field data-invalid={isInvalid} className="gap-1">
+                    <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor={field.name}>Course</FieldLabel>
                       <Combobox
                         items={courses}
@@ -272,7 +323,7 @@ export function NewAssignmentSheet({
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
-                    <Field data-invalid={isInvalid} className="gap-1">
+                    <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor={field.name}>Max score</FieldLabel>
                       <Input
                         id={field.name}
@@ -288,6 +339,112 @@ export function NewAssignmentSheet({
                         autoComplete="off"
                         className="h-10"
                       />
+                    </Field>
+                  )
+                }}
+              />
+
+              <form.Field
+                name="submissionFormat"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>
+                        Submission Format
+                      </FieldLabel>
+                      <Select items={SubmissionFormat} multiple>
+                        <SelectTrigger className="h-10!">
+                          <SelectValue placeholder="Select submission format" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {SubmissionFormat.map((sf) => (
+                              <SelectItem key={sf.value} value={sf.value}>
+                                {sf.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )
+                }}
+              />
+
+              <form.Field
+                name="dueAt"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field aria-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Due At</FieldLabel>
+                      <section className="flex flex-row flex-wrap items-center gap-2">
+                        <DateTimePicker
+                          value={field.state.value}
+                          onChange={field.handleChange}
+                          className="bg-primary/5 max-w-80 grow rounded-lg border"
+                        />
+                        <div className="flex flex-1 flex-wrap content-start items-center gap-2">
+                          <Button
+                            variant={
+                              isDueIn(field.state.value, 1, "days")
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setDueIn(field, 1, "days")}
+                          >
+                            Tomorrow
+                          </Button>
+                          <Button
+                            variant={
+                              isDueIn(field.state.value, 3, "days")
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setDueIn(field, 3, "days")}
+                          >
+                            3 days
+                          </Button>
+                          <Button
+                            variant={
+                              isDueIn(field.state.value, 1, "weeks")
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setDueIn(field, 1, "weeks")}
+                          >
+                            1 week
+                          </Button>
+                          <Button
+                            variant={
+                              isDueIn(field.state.value, 2, "weeks")
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setDueIn(field, 2, "weeks")}
+                          >
+                            2 weeks
+                          </Button>
+                          <Button
+                            variant={
+                              isDueIn(field.state.value, 1, "months")
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setDueIn(field, 1, "months")}
+                          >
+                            1 month
+                          </Button>
+                        </div>
+                      </section>
                     </Field>
                   )
                 }}

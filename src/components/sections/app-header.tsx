@@ -102,7 +102,7 @@ export function AppHeader(): JSX.Element {
   // console.log(titleSlot)
 
   return (
-    <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl border-b px-4 py-2">
+    <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl px-4 py-2">
       {/* <span className="font-logo text-primary text-2xl font-extrabold lg:text-3xl">
         mìlà
       </span> */}
