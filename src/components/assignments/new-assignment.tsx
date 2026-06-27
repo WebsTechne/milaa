@@ -73,10 +73,14 @@ export function NewAssignmentSheet({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
     images: z.array(z.file()).min(1, "Add at least one image").optional(),
-    course: z.string().min(1, "Select a course"),
+    courseId: z.string().min(1, "Select a course"),
     maxScore: z.number().min(1, "Max score is required"),
-    submissionFormat: z.string().min(1, "Submission format is required"),
-    dueAt: undefined as Date | undefined,
+    submissionFormat: z
+      .array(z.nativeEnum(PrismaSubmissionFormat))
+      .min(1, "Select at least one submission format"),
+    dueAt: z.date({
+      error: "Due date is required",
+    }),
   })
 
   const form = useForm({
@@ -84,9 +88,9 @@ export function NewAssignmentSheet({
       title: "",
       description: "",
       images: [] as File[],
-      course: "",
-      maxScore: 0,
-      submissionFormat: "",
+      courseId: "",
+      maxScore: 100,
+      submissionFormat: [] as PrismaSubmissionFormat[],
       dueAt: undefined as Date | undefined,
     },
     validators: {
@@ -260,7 +264,7 @@ export function NewAssignmentSheet({
               />
 
               <form.Field
-                name="course"
+                name="courseId"
                 children={(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid
@@ -274,7 +278,7 @@ export function NewAssignmentSheet({
                         autoHighlight
                         onValueChange={(selected) => {
                           setSelectedCourse(selected)
-                          field.handleChange(selected?.code ?? "")
+                          field.handleChange(selected?.id ?? "")
                           if (!selected) return
                           handleCreateCode(selected.code)
                         }}
@@ -380,15 +384,18 @@ export function NewAssignmentSheet({
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
                     <Field aria-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Due At</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>Due In</FieldLabel>
                       <section className="flex flex-row flex-wrap items-center gap-2">
                         <DateTimePicker
                           value={field.state.value}
                           onChange={field.handleChange}
-                          className="bg-primary/5 max-w-80 grow rounded-lg border"
+                          month={month}
+                          onMonthChange={setMonth}
+                          className="bg-primary/5 max-w-70 grow rounded-lg border"
                         />
                         <div className="flex flex-1 flex-wrap content-start items-center gap-2">
                           <Button
+                            type="button"
                             variant={
                               isDueIn(field.state.value, 1, "days")
                                 ? "default"
@@ -400,6 +407,7 @@ export function NewAssignmentSheet({
                             Tomorrow
                           </Button>
                           <Button
+                            type="button"
                             variant={
                               isDueIn(field.state.value, 3, "days")
                                 ? "default"
@@ -411,6 +419,7 @@ export function NewAssignmentSheet({
                             3 days
                           </Button>
                           <Button
+                            type="button"
                             variant={
                               isDueIn(field.state.value, 1, "weeks")
                                 ? "default"
@@ -422,6 +431,7 @@ export function NewAssignmentSheet({
                             1 week
                           </Button>
                           <Button
+                            type="button"
                             variant={
                               isDueIn(field.state.value, 2, "weeks")
                                 ? "default"
@@ -433,6 +443,7 @@ export function NewAssignmentSheet({
                             2 weeks
                           </Button>
                           <Button
+                            type="button"
                             variant={
                               isDueIn(field.state.value, 1, "months")
                                 ? "default"
