@@ -3,7 +3,6 @@ import { z } from "zod"
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createCourse, getCourses } from "#/server/courses"
-import { generateCode } from "#/lib/generate-code"
 import {
   Sheet,
   SheetClose,
@@ -18,6 +17,7 @@ import {
   Field,
   FieldLabel,
   FieldError,
+  FieldDescription,
 } from "#/components/ui/field"
 import {
   Combobox,
@@ -46,6 +46,25 @@ import { addDays, addWeeks, addMonths } from "date-fns"
 import { SubmissionFormat as PrismaSubmissionFormat } from "#/generated/prisma/enums"
 import { DateTimePicker } from "../ui/date-time-picker"
 import { isDueIn } from "#/lib/due-in"
+import { createAssignment } from "#/server/assignments"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog"
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from "../ui/input-group"
+import { IconCheck, IconCopy } from "@tabler/icons-react"
+import { Link } from "@tanstack/react-router"
+import { copyToClipboard } from "#/lib/copy-to-clipboard"
 
 const SubmissionFormat = Object.values(PrismaSubmissionFormat).map(
   (format) => ({ label: format, value: format }),
@@ -68,11 +87,19 @@ export function NewAssignmentSheet({
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
   const [month, setMonth] = useState(new Date())
+  const [error, setError] = useState("")
+
+  const [createdAssignment, setCreatedAssignment] = useState<{
+    id: string
+    assignmentCode: string
+  } | null>(null)
+
+  const [isCopying, setIsCopying] = useState(false)
 
   const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
-    images: z.array(z.file()).min(1, "Add at least one image").optional(),
+    images: z.array(z.file()).optional(),
     courseId: z.string().min(1, "Select a course"),
     maxScore: z.number().min(1, "Max score is required"),
     submissionFormat: z
@@ -101,7 +128,37 @@ export function NewAssignmentSheet({
         }
       },
     },
-    onSubmit: async ({ value }) => {},
+    onSubmit: async ({ value }) => {
+      console.log("SUBMIT", value)
+      setError("")
+
+      const {
+        title,
+        description,
+        maxScore,
+        submissionFormat: allowedFormats,
+        dueAt,
+        images,
+      } = value
+      if (!selectedCourse || !dueAt) return
+      const course = selectedCourse
+      try {
+        const assignment = await createAssignment({
+          data: { title, description, course, maxScore, dueAt, allowedFormats },
+        })
+
+        setCreatedAssignment({
+          id: assignment.id,
+          assignmentCode: assignment.assignmentCode,
+        })
+        queryClient.invalidateQueries({
+          queryKey: ["assignments"],
+        })
+      } catch (err) {
+        setError("Failed to create assignment. Please try again.")
+        console.error(err)
+      }
+    },
   })
 
   const comboboxChipsInputRef = useRef<HTMLInputElement | null>(null)
@@ -111,23 +168,27 @@ export function NewAssignmentSheet({
     amount: number,
     unit: "days" | "weeks" | "months",
   ) => {
-    const now = new Date()
-    let date = now
+    const existing = field.state.value
+
+    let date: Date
 
     switch (unit) {
       case "days":
-        date = addDays(now, amount)
+        date = addDays(new Date(), amount)
         break
       case "weeks":
-        date = addWeeks(now, amount)
+        date = addWeeks(new Date(), amount)
         break
       case "months":
-        date = addMonths(now, amount)
+        date = addMonths(new Date(), amount)
         break
     }
 
-    // Optional: default due time
-    date.setHours(23, 59, 0, 0)
+    if (existing) {
+      date.setHours(existing.getHours(), existing.getMinutes(), 0, 0)
+    } else {
+      date.setHours(23, 59, 0, 0)
+    }
 
     field.handleChange(date)
     setMonth(date)
@@ -150,337 +211,416 @@ export function NewAssignmentSheet({
     }
   }
 
-  const handleCreateCode = async (course: string) => {
-    try {
-      const code = await generateCode({ data: { course } })
-    } catch (error) {
-      console.error(error)
-      toast.error("Failed to generate code")
+  const handleCopyCode = async () => {
+    if (!createdAssignment) return
+    const success = await copyToClipboard(createdAssignment.assignmentCode)
+
+    if (success) {
+      setIsCopying(true)
+      setTimeout(() => setIsCopying(false), 2000)
+    } else {
+      toast.error("Failed to copy code")
     }
   }
 
-  //   onClick={async () => {
-  //     const success = await copyToClipboard(assignmentCode)
-
-  //     if (success) {
-  //       toast.success("Code copied", {
-  //         description:
-  //           "Students with this code can view and submit this assignment",
-  //       })
-  //     } else {
-  //       toast.error("Failed to copy code")
-  //     }
-  // 	}
-  // }
+  const resetForm = () => {
+    setCreatedAssignment(null)
+    onOpenChange(false)
+    setSelectedCourse(null)
+    setError("")
+    setMonth(new Date())
+    setIsCopying(false)
+    form.reset()
+  }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent className="w-full! max-w-lg! gap-0!">
-        <SheetHeader>
-          <SheetTitle>Create Assignment</SheetTitle>
-          <SheetDescription>
-            Create a new assignment, set a due date and share the code
-          </SheetDescription>
-        </SheetHeader>
+    <>
+      <AlertDialog
+        open={createdAssignment !== null}
+        onOpenChange={(open) => {
+          if (!open) resetForm()
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>🎉 Assignment published</AlertDialogTitle>
+            <AlertDialogDescription>
+              Students already enrolled have been notified. Anyone who joins
+              later can use the code below to access this assignment.
+            </AlertDialogDescription>
 
-        <form
-          className="contents"
-          onSubmit={(e) => {
-            e.preventDefault()
-          }}
-        >
-          <div className="no-scrollbar flex-1 overflow-y-auto">
-            <FieldGroup className="gap-5 px-4">
-              <form.Field
-                name="title"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type="text"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        placeholder="Assignment title"
-                        autoComplete="off"
-                        className="h-10"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
+            <Field>
+              <InputGroup className="bg-background! h-10">
+                <InputGroupInput
+                  readOnly
+                  value={createdAssignment?.assignmentCode ?? ""}
+                />
+                <InputGroupButton
+                  title={isCopying ? "Copied!" : "Copy"}
+                  onClick={handleCopyCode}
+                >
+                  {isCopying ? <IconCheck /> : <IconCopy />}
+                </InputGroupButton>
+              </InputGroup>
+            </Field>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="px-5" onClick={() => resetForm()}>
+              Close
+            </AlertDialogCancel>
+            <AlertDialogAction
+              render={
+                <Link
+                  to="/assignments/$assignmentId"
+                  params={{ assignmentId: createdAssignment?.id ?? "" }}
+                />
+              }
+            >
+              View Assignment
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-              <form.Field
-                name="description"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid}>
+      <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
+        <SheetContent className="w-full! max-w-lg! gap-0!">
+          <SheetHeader>
+            <SheetTitle>Create Assignment</SheetTitle>
+            <SheetDescription>
+              Create a new assignment, set a due date and share the code
+            </SheetDescription>
+          </SheetHeader>
+
+          <form
+            className="contents"
+            onSubmit={(e) => {
+              e.preventDefault()
+            }}
+          >
+            <div className="no-scrollbar flex-1 overflow-y-auto">
+              <FieldGroup className="gap-5 px-4">
+                <form.Field
+                  name="title"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Assignment title"
+                          autoComplete="off"
+                          className="h-10"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="description"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Description (optional)
+                        </FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Assignment description..."
+                          autoComplete="off"
+                          className="min-h-20 resize-none"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="images"
+                  children={(field) => (
+                    <Field className="gap-2">
                       <FieldLabel htmlFor={field.name}>
-                        Description (optional)
+                        Assignment Images
                       </FieldLabel>
-                      <Textarea
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        placeholder="Assignment description..."
-                        autoComplete="off"
-                        className="min-h-20 resize-none"
+                      <DropZone
+                        onFiles={(files) => field.handleChange(files)}
+                        multiple
                       />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
                     </Field>
-                  )
-                }}
-              />
+                  )}
+                />
 
-              <form.Field
-                name="images"
-                children={(field) => (
-                  <Field className="gap-2">
-                    <FieldLabel htmlFor={field.name}>
-                      Assignment Images
-                    </FieldLabel>
-                    <DropZone
-                      onFiles={(files) => field.handleChange(files)}
-                      multiple
-                    />
+                <form.Field
+                  name="courseId"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Course</FieldLabel>
+                        <Combobox
+                          items={courses}
+                          value={selectedCourse}
+                          itemToStringLabel={(course) => course.name}
+                          autoHighlight
+                          onValueChange={(selected) => {
+                            setSelectedCourse(selected)
+                            field.handleChange(selected?.id ?? "")
+                            if (!selected) return
+                            // handleCreateCourse(selected.code)
+                          }}
+                        >
+                          <ComboboxInput
+                            ref={comboboxChipsInputRef}
+                            className="h-10"
+                            uppercase
+                          />
+                          <ComboboxContent>
+                            {isPendingCourses ? (
+                              <ComboboxList>
+                                <div className="flex-center h-25 w-full">
+                                  <Spinner />
+                                </div>
+                              </ComboboxList>
+                            ) : (
+                              <>
+                                <ComboboxEmpty>
+                                  <Button
+                                    variant="secondary"
+                                    onClick={handleCreateCourse}
+                                  >
+                                    Add course
+                                  </Button>
+                                </ComboboxEmpty>
+                                <ComboboxList>
+                                  {(course) => (
+                                    <ComboboxItem
+                                      key={course.id}
+                                      value={course}
+                                    >
+                                      {course.name}
+                                    </ComboboxItem>
+                                  )}
+                                </ComboboxList>
+                              </>
+                            )}
+                          </ComboboxContent>
+                        </Combobox>
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="maxScore"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Max score</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="number"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) =>
+                            field.handleChange(e.target.valueAsNumber)
+                          }
+                          aria-invalid={isInvalid}
+                          placeholder="Max score"
+                          autoComplete="off"
+                          className="h-10"
+                        />
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="submissionFormat"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>
+                          Submission Format
+                        </FieldLabel>
+                        <Select
+                          items={SubmissionFormat}
+                          multiple
+                          value={field.state.value}
+                          onValueChange={field.handleChange}
+                        >
+                          <SelectTrigger className="h-10!">
+                            <SelectValue placeholder="Select submission format" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {SubmissionFormat.map((sf) => (
+                                <SelectItem key={sf.value} value={sf.value}>
+                                  {sf.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="dueAt"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field aria-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>Due In</FieldLabel>
+                        <section className="flex flex-row flex-wrap items-center gap-2">
+                          <DateTimePicker
+                            value={field.state.value}
+                            onChange={field.handleChange}
+                            month={month}
+                            onMonthChange={setMonth}
+                            className="bg-primary/5 max-w-70 grow rounded-lg border"
+                          />
+                          <div className="flex flex-1 flex-wrap content-start items-center gap-2">
+                            <Button
+                              type="button"
+                              variant={
+                                isDueIn(field.state.value, 1, "days")
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setDueIn(field, 1, "days")}
+                            >
+                              Tomorrow
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                isDueIn(field.state.value, 3, "days")
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setDueIn(field, 3, "days")}
+                            >
+                              3 days
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                isDueIn(field.state.value, 1, "weeks")
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setDueIn(field, 1, "weeks")}
+                            >
+                              1 week
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                isDueIn(field.state.value, 2, "weeks")
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setDueIn(field, 2, "weeks")}
+                            >
+                              2 weeks
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={
+                                isDueIn(field.state.value, 1, "months")
+                                  ? "default"
+                                  : "outline"
+                              }
+                              size="sm"
+                              onClick={() => setDueIn(field, 1, "months")}
+                            >
+                              1 month
+                            </Button>
+                          </div>
+                        </section>
+                      </Field>
+                    )
+                  }}
+                />
+
+                {error.length > 0 && (
+                  <Field>
+                    <FieldError className="text-center">{error}</FieldError>
                   </Field>
                 )}
-              />
+              </FieldGroup>
+            </div>
+          </form>
 
-              <form.Field
-                name="courseId"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor={field.name}>Course</FieldLabel>
-                      <Combobox
-                        items={courses}
-                        value={selectedCourse}
-                        itemToStringLabel={(course) => course.name}
-                        autoHighlight
-                        onValueChange={(selected) => {
-                          setSelectedCourse(selected)
-                          field.handleChange(selected?.id ?? "")
-                          if (!selected) return
-                          handleCreateCode(selected.code)
-                        }}
-                      >
-                        <ComboboxInput
-                          ref={comboboxChipsInputRef}
-                          className="h-10"
-                          uppercase
-                        />
-                        <ComboboxContent>
-                          {isPendingCourses ? (
-                            <ComboboxList>
-                              <div className="flex-center h-25 w-full">
-                                <Spinner />
-                              </div>
-                            </ComboboxList>
-                          ) : (
-                            <>
-                              <ComboboxEmpty>
-                                <Button
-                                  variant="secondary"
-                                  onClick={handleCreateCourse}
-                                >
-                                  Add course
-                                </Button>
-                              </ComboboxEmpty>
-                              <ComboboxList>
-                                {(course) => (
-                                  <ComboboxItem key={course.id} value={course}>
-                                    {course.name}
-                                  </ComboboxItem>
-                                )}
-                              </ComboboxList>
-                            </>
-                          )}
-                        </ComboboxContent>
-                      </Combobox>
-                    </Field>
-                  )
-                }}
-              />
-
-              <form.Field
-                name="maxScore"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor={field.name}>Max score</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type="number"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) =>
-                          field.handleChange(e.target.valueAsNumber)
-                        }
-                        aria-invalid={isInvalid}
-                        placeholder="Max score"
-                        autoComplete="off"
-                        className="h-10"
-                      />
-                    </Field>
-                  )
-                }}
-              />
-
-              <form.Field
-                name="submissionFormat"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor={field.name}>
-                        Submission Format
-                      </FieldLabel>
-                      <Select items={SubmissionFormat} multiple>
-                        <SelectTrigger className="h-10!">
-                          <SelectValue placeholder="Select submission format" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {SubmissionFormat.map((sf) => (
-                              <SelectItem key={sf.value} value={sf.value}>
-                                {sf.label}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Field>
-                  )
-                }}
-              />
-
-              <form.Field
-                name="dueAt"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-                  return (
-                    <Field aria-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Due In</FieldLabel>
-                      <section className="flex flex-row flex-wrap items-center gap-2">
-                        <DateTimePicker
-                          value={field.state.value}
-                          onChange={field.handleChange}
-                          month={month}
-                          onMonthChange={setMonth}
-                          className="bg-primary/5 max-w-70 grow rounded-lg border"
-                        />
-                        <div className="flex flex-1 flex-wrap content-start items-center gap-2">
-                          <Button
-                            type="button"
-                            variant={
-                              isDueIn(field.state.value, 1, "days")
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setDueIn(field, 1, "days")}
-                          >
-                            Tomorrow
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={
-                              isDueIn(field.state.value, 3, "days")
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setDueIn(field, 3, "days")}
-                          >
-                            3 days
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={
-                              isDueIn(field.state.value, 1, "weeks")
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setDueIn(field, 1, "weeks")}
-                          >
-                            1 week
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={
-                              isDueIn(field.state.value, 2, "weeks")
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setDueIn(field, 2, "weeks")}
-                          >
-                            2 weeks
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={
-                              isDueIn(field.state.value, 1, "months")
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setDueIn(field, 1, "months")}
-                          >
-                            1 month
-                          </Button>
-                        </div>
-                      </section>
-                    </Field>
-                  )
-                }}
-              />
-            </FieldGroup>
-          </div>
-        </form>
-
-        <SheetFooter>
-          <SheetClose
-            render={
-              <Button type="button" variant="secondary" className="h-10" />
-            }
-          >
-            Cancel
-          </SheetClose>
-          <Button
-            type="button"
-            className="h-10"
-            onClick={() => form.handleSubmit()}
-          >
-            Create
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          <SheetFooter>
+            <SheetClose
+              render={
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-10"
+                  onClick={() => form.reset()}
+                />
+              }
+            >
+              Cancel
+            </SheetClose>
+            <Button
+              type="button"
+              className="h-10"
+              onClick={() => {
+                console.log(form.state.values)
+                console.log(form.state.errors)
+                console.log(form.state.errorMap)
+                form.handleSubmit()
+              }}
+            >
+              {form.state.isSubmitting ? (
+                <>
+                  <Spinner />
+                  Creating...
+                </>
+              ) : (
+                "Create"
+              )}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }

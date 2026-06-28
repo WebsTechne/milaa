@@ -1,7 +1,8 @@
 import { supabase } from "../supabase"
+import type { Attachment, AttachmentBucket } from "./upload"
 
-function getStoragePath(url: string) {
-  const marker = "/storage/v1/object/public/pages/"
+function getStoragePath(url: string, bucket: AttachmentBucket) {
+  const marker = `/storage/v1/object/public/${bucket}/`
   const index = url.indexOf(marker)
 
   if (index === -1) {
@@ -11,16 +12,23 @@ function getStoragePath(url: string) {
   return url.slice(index + marker.length)
 }
 
-async function deleteSupabasePages(raw: string[], collectionId: string) {
-  const filePaths = raw.map(getStoragePath)
+async function deleteSupabaseAttachments(
+  raw: string[],
+  collectionId: string,
+  type: Attachment,
+) {
+  const bucket =
+    type === "assignment" ? "assignment-attachments" : "submission-attachments"
 
-  const { error } = await supabase.storage.from("pages").remove(filePaths)
+  const filePaths = raw.map((r) => getStoragePath(r, bucket))
+
+  const { error } = await supabase.storage.from(bucket).remove(filePaths)
 
   if (error) {
-    console.error("Page delete failed:", { raw, collectionId, error })
+    console.error("Attachment delete failed:", { raw, collectionId, error })
     throw error
   }
-  return { data: `${raw.length} pages deleted successfully` }
+  return { data: `${raw.length} attachments deleted successfully` }
 }
 
-export { deleteSupabasePages }
+export { deleteSupabaseAttachments }

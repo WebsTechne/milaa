@@ -17,6 +17,7 @@ import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AppAssignmentsIndexRouteImport } from './routes/_app/assignments/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppAssignmentsAssignmentIdRouteImport } from './routes/_app/assignments/$assignmentId'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -57,11 +58,18 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAssignmentsAssignmentIdRoute =
+  AppAssignmentsAssignmentIdRouteImport.update({
+    id: '/assignments/$assignmentId',
+    path: '/assignments/$assignmentId',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/$': typeof AppSplatRoute
+  '/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments/': typeof AppAssignmentsIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -71,6 +79,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/': typeof AppIndexRoute
+  '/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments': typeof AppAssignmentsIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
@@ -82,6 +91,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_app/assignments/': typeof AppAssignmentsIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/$'
+    | '/assignments/$assignmentId'
     | '/api/auth/$'
     | '/assignments/'
     | '/auth/sign-in/'
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/$'
     | '/'
+    | '/assignments/$assignmentId'
     | '/api/auth/$'
     | '/assignments'
     | '/auth/sign-in'
@@ -112,6 +124,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_app/$'
     | '/_app/'
+    | '/_app/assignments/$assignmentId'
     | '/api/auth/$'
     | '/_app/assignments/'
     | '/auth/sign-in/'
@@ -182,18 +195,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/assignments/$assignmentId': {
+      id: '/_app/assignments/$assignmentId'
+      path: '/assignments/$assignmentId'
+      fullPath: '/assignments/$assignmentId'
+      preLoaderRoute: typeof AppAssignmentsAssignmentIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAssignmentsAssignmentIdRoute: typeof AppAssignmentsAssignmentIdRoute
   AppAssignmentsIndexRoute: typeof AppAssignmentsIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSplatRoute: AppSplatRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAssignmentsAssignmentIdRoute: AppAssignmentsAssignmentIdRoute,
   AppAssignmentsIndexRoute: AppAssignmentsIndexRoute,
 }
 

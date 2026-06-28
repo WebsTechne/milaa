@@ -42,9 +42,12 @@ async function uploadAvatar(file: File, userId: string) {
   return publicData.publicUrl
 }
 
-type Attachment = "assignment" | "submission"
+export type Attachment = "assignment" | "submission"
+export type AttachmentBucket =
+  | "assignment-attachments"
+  | "submission-attachments"
 
-async function uploadPage(
+async function uploadAttachment(
   type: Attachment,
   file: File,
   collectionId: string,
@@ -52,34 +55,33 @@ async function uploadPage(
 ) {
   const processed = await compressIfNeeded(file, PAGE_MAX_MB)
 
+  const bucket =
+    type === "assignment" ? "assignment-attachments" : "submission-attachments"
+
   const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "jpg"
   const ext = rawExt === "jpeg" ? "jpg" : rawExt // normalize jpeg → jpg
   const path = `${collectionId}/${position}.${ext}`
 
   const { data, error } = await supabase.storage
-    .from(
-      type === "assignment"
-        ? "assignment-attachments"
-        : "submission-attachments",
-    )
+    .from(bucket)
     .upload(path, processed, {
       upsert: true,
       contentType: processed.type || `image/${ext}`,
     })
 
   if (error) {
-    console.error("Page upload failed:", { path, collectionId, error })
+    console.error("Attachment upload failed:", { path, collectionId, error })
     throw error
   }
 
   const { data: publicData } = supabase.storage
-    .from("pages")
+    .from(bucket)
     .getPublicUrl(data.path)
 
   return { url: publicData.publicUrl, position }
 }
 
-async function uploadPages(
+async function uploadAttachments(
   type: Attachment,
   files: File[],
   collectionId: string,
@@ -90,7 +92,7 @@ async function uploadPages(
 
   const results = await Promise.all(
     files.map(async (file, index) => {
-      const result = await uploadPage(
+      const result = await uploadAttachment(
         type,
         file,
         collectionId,
@@ -105,4 +107,4 @@ async function uploadPages(
   return results
 }
 
-export { uploadAvatar, uploadPage, uploadPages }
+export { uploadAvatar, uploadAttachment, uploadAttachments }

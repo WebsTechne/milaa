@@ -30,11 +30,9 @@ export function DateTimePicker({
   const [period, setPeriod] = useState<"AM" | "PM">("PM")
 
   const minuteRef = useRef<HTMLInputElement>(null)
-  console.log(selectedDate)
 
   useEffect(() => {
     if (!selectedDate) return
-    console.log(selectedDate)
 
     let hours = selectedDate.getHours()
     const minutes = selectedDate.getMinutes()
