@@ -4,6 +4,31 @@ import { getSession } from "#/lib/auth-session"
 import type { Prisma, SubmissionFormat } from "#/generated/prisma/client"
 import { generateCode } from "#/lib/generate-code"
 
+const getAssignmentById = createServerFn({ method: "GET" })
+  .validator((data: { assignmentId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    try {
+      const assignment = await prisma.assignment.findFirst({
+        where: { id: data.assignmentId },
+        include: {
+          course: { select: { id: true, code: true, name: true } },
+          attachments: { orderBy: { position: "asc" } },
+          teacher: { select: { firstName: true, lastName: true, image: true } },
+          _count: { select: { submissions: true } },
+        },
+      })
+
+      if (!assignment) return null
+      return assignment
+    } catch (err) {
+      console.error("❌ getAssignmentById error:", err)
+      throw err
+    }
+  })
+
 const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
   async () => {
     const session = await getSession()
@@ -15,6 +40,7 @@ const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
         select: {
           id: true,
           title: true,
+          description: true,
           dueAt: true,
           course: { select: { name: true } },
           _count: { select: { submissions: true } },
@@ -28,6 +54,7 @@ type AssignmentListData = Prisma.AssignmentGetPayload<{
   select: {
     id: true
     title: true
+    description: true
     dueAt: true
     course: { select: { name: true } }
     _count: { select: { submissions: true } }
@@ -75,5 +102,24 @@ const createAssignment = createServerFn({ method: "POST" })
     }
   })
 
+const deleteAssignment = createServerFn({ method: "POST" })
+  .validator((data: { assignmentId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    await prisma.assignment.delete({
+      where: {
+        id: data.assignmentId,
+        teacherId: session.user.id, // only creator can delete
+      },
+    })
+  })
+
 export type { AssignmentListData }
-export { getTeacherAssignments, createAssignment }
+export {
+  getAssignmentById,
+  getTeacherAssignments,
+  createAssignment,
+  deleteAssignment,
+}

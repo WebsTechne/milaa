@@ -142,7 +142,6 @@ model AssignmentAttachment {
   id           String     @id @default(cuid())
   assignmentId String
   url          String
-  fileType     String
   position     Int
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }

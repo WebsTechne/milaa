@@ -27,7 +27,7 @@ function AppLayout() {
       <AppSidebar />
       <SidebarInset className="">
         <AppHeader />
-        <main className="py-4 [&>section]:px-4">
+        <main className="[&>section]:px-4">
           <Outlet />
         </main>
       </SidebarInset>

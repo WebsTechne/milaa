@@ -38,7 +38,6 @@ export type AssignmentAttachmentMinAggregateOutputType = {
   id: string | null
   assignmentId: string | null
   url: string | null
-  fileType: string | null
   position: number | null
 }
 
@@ -46,7 +45,6 @@ export type AssignmentAttachmentMaxAggregateOutputType = {
   id: string | null
   assignmentId: string | null
   url: string | null
-  fileType: string | null
   position: number | null
 }
 
@@ -54,7 +52,6 @@ export type AssignmentAttachmentCountAggregateOutputType = {
   id: number
   assignmentId: number
   url: number
-  fileType: number
   position: number
   _all: number
 }
@@ -72,7 +69,6 @@ export type AssignmentAttachmentMinAggregateInputType = {
   id?: true
   assignmentId?: true
   url?: true
-  fileType?: true
   position?: true
 }
 
@@ -80,7 +76,6 @@ export type AssignmentAttachmentMaxAggregateInputType = {
   id?: true
   assignmentId?: true
   url?: true
-  fileType?: true
   position?: true
 }
 
@@ -88,7 +83,6 @@ export type AssignmentAttachmentCountAggregateInputType = {
   id?: true
   assignmentId?: true
   url?: true
-  fileType?: true
   position?: true
   _all?: true
 }
@@ -183,7 +177,6 @@ export type AssignmentAttachmentGroupByOutputType = {
   id: string
   assignmentId: string
   url: string
-  fileType: string
   position: number
   _count: AssignmentAttachmentCountAggregateOutputType | null
   _avg: AssignmentAttachmentAvgAggregateOutputType | null
@@ -214,7 +207,6 @@ export type AssignmentAttachmentWhereInput = {
   id?: Prisma.StringFilter<"AssignmentAttachment"> | string
   assignmentId?: Prisma.StringFilter<"AssignmentAttachment"> | string
   url?: Prisma.StringFilter<"AssignmentAttachment"> | string
-  fileType?: Prisma.StringFilter<"AssignmentAttachment"> | string
   position?: Prisma.IntFilter<"AssignmentAttachment"> | number
   assignment?: Prisma.XOR<Prisma.AssignmentScalarRelationFilter, Prisma.AssignmentWhereInput>
 }
@@ -223,7 +215,6 @@ export type AssignmentAttachmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   assignmentId?: Prisma.SortOrder
   url?: Prisma.SortOrder
-  fileType?: Prisma.SortOrder
   position?: Prisma.SortOrder
   assignment?: Prisma.AssignmentOrderByWithRelationInput
 }
@@ -235,7 +226,6 @@ export type AssignmentAttachmentWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AssignmentAttachmentWhereInput | Prisma.AssignmentAttachmentWhereInput[]
   assignmentId?: Prisma.StringFilter<"AssignmentAttachment"> | string
   url?: Prisma.StringFilter<"AssignmentAttachment"> | string
-  fileType?: Prisma.StringFilter<"AssignmentAttachment"> | string
   position?: Prisma.IntFilter<"AssignmentAttachment"> | number
   assignment?: Prisma.XOR<Prisma.AssignmentScalarRelationFilter, Prisma.AssignmentWhereInput>
 }, "id">
@@ -244,7 +234,6 @@ export type AssignmentAttachmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   assignmentId?: Prisma.SortOrder
   url?: Prisma.SortOrder
-  fileType?: Prisma.SortOrder
   position?: Prisma.SortOrder
   _count?: Prisma.AssignmentAttachmentCountOrderByAggregateInput
   _avg?: Prisma.AssignmentAttachmentAvgOrderByAggregateInput
@@ -260,14 +249,12 @@ export type AssignmentAttachmentScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"AssignmentAttachment"> | string
   assignmentId?: Prisma.StringWithAggregatesFilter<"AssignmentAttachment"> | string
   url?: Prisma.StringWithAggregatesFilter<"AssignmentAttachment"> | string
-  fileType?: Prisma.StringWithAggregatesFilter<"AssignmentAttachment"> | string
   position?: Prisma.IntWithAggregatesFilter<"AssignmentAttachment"> | number
 }
 
 export type AssignmentAttachmentCreateInput = {
   id?: string
   url: string
-  fileType: string
   position: number
   assignment: Prisma.AssignmentCreateNestedOneWithoutAttachmentsInput
 }
@@ -276,14 +263,12 @@ export type AssignmentAttachmentUncheckedCreateInput = {
   id?: string
   assignmentId: string
   url: string
-  fileType: string
   position: number
 }
 
 export type AssignmentAttachmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
   assignment?: Prisma.AssignmentUpdateOneRequiredWithoutAttachmentsNestedInput
 }
@@ -292,7 +277,6 @@ export type AssignmentAttachmentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   assignmentId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -300,14 +284,12 @@ export type AssignmentAttachmentCreateManyInput = {
   id?: string
   assignmentId: string
   url: string
-  fileType: string
   position: number
 }
 
 export type AssignmentAttachmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -315,7 +297,6 @@ export type AssignmentAttachmentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   assignmentId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -333,7 +314,6 @@ export type AssignmentAttachmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assignmentId?: Prisma.SortOrder
   url?: Prisma.SortOrder
-  fileType?: Prisma.SortOrder
   position?: Prisma.SortOrder
 }
 
@@ -345,7 +325,6 @@ export type AssignmentAttachmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assignmentId?: Prisma.SortOrder
   url?: Prisma.SortOrder
-  fileType?: Prisma.SortOrder
   position?: Prisma.SortOrder
 }
 
@@ -353,7 +332,6 @@ export type AssignmentAttachmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   assignmentId?: Prisma.SortOrder
   url?: Prisma.SortOrder
-  fileType?: Prisma.SortOrder
   position?: Prisma.SortOrder
 }
 
@@ -406,14 +384,12 @@ export type AssignmentAttachmentUncheckedUpdateManyWithoutAssignmentNestedInput 
 export type AssignmentAttachmentCreateWithoutAssignmentInput = {
   id?: string
   url: string
-  fileType: string
   position: number
 }
 
 export type AssignmentAttachmentUncheckedCreateWithoutAssignmentInput = {
   id?: string
   url: string
-  fileType: string
   position: number
 }
 
@@ -450,35 +426,30 @@ export type AssignmentAttachmentScalarWhereInput = {
   id?: Prisma.StringFilter<"AssignmentAttachment"> | string
   assignmentId?: Prisma.StringFilter<"AssignmentAttachment"> | string
   url?: Prisma.StringFilter<"AssignmentAttachment"> | string
-  fileType?: Prisma.StringFilter<"AssignmentAttachment"> | string
   position?: Prisma.IntFilter<"AssignmentAttachment"> | number
 }
 
 export type AssignmentAttachmentCreateManyAssignmentInput = {
   id?: string
   url: string
-  fileType: string
   position: number
 }
 
 export type AssignmentAttachmentUpdateWithoutAssignmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AssignmentAttachmentUncheckedUpdateWithoutAssignmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AssignmentAttachmentUncheckedUpdateManyWithoutAssignmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.StringFieldUpdateOperationsInput | string
   position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -488,7 +459,6 @@ export type AssignmentAttachmentSelect<ExtArgs extends runtime.Types.Extensions.
   id?: boolean
   assignmentId?: boolean
   url?: boolean
-  fileType?: boolean
   position?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assignmentAttachment"]>
@@ -497,7 +467,6 @@ export type AssignmentAttachmentSelectCreateManyAndReturn<ExtArgs extends runtim
   id?: boolean
   assignmentId?: boolean
   url?: boolean
-  fileType?: boolean
   position?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assignmentAttachment"]>
@@ -506,7 +475,6 @@ export type AssignmentAttachmentSelectUpdateManyAndReturn<ExtArgs extends runtim
   id?: boolean
   assignmentId?: boolean
   url?: boolean
-  fileType?: boolean
   position?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assignmentAttachment"]>
@@ -515,11 +483,10 @@ export type AssignmentAttachmentSelectScalar = {
   id?: boolean
   assignmentId?: boolean
   url?: boolean
-  fileType?: boolean
   position?: boolean
 }
 
-export type AssignmentAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assignmentId" | "url" | "fileType" | "position", ExtArgs["result"]["assignmentAttachment"]>
+export type AssignmentAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assignmentId" | "url" | "position", ExtArgs["result"]["assignmentAttachment"]>
 export type AssignmentAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
 }
@@ -539,7 +506,6 @@ export type $AssignmentAttachmentPayload<ExtArgs extends runtime.Types.Extension
     id: string
     assignmentId: string
     url: string
-    fileType: string
     position: number
   }, ExtArgs["result"]["assignmentAttachment"]>
   composites: {}
@@ -968,7 +934,6 @@ export interface AssignmentAttachmentFieldRefs {
   readonly id: Prisma.FieldRef<"AssignmentAttachment", 'String'>
   readonly assignmentId: Prisma.FieldRef<"AssignmentAttachment", 'String'>
   readonly url: Prisma.FieldRef<"AssignmentAttachment", 'String'>
-  readonly fileType: Prisma.FieldRef<"AssignmentAttachment", 'String'>
   readonly position: Prisma.FieldRef<"AssignmentAttachment", 'Int'>
 }
     

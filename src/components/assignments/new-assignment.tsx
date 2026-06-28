@@ -46,7 +46,7 @@ import { addDays, addWeeks, addMonths } from "date-fns"
 import { SubmissionFormat as PrismaSubmissionFormat } from "#/generated/prisma/enums"
 import { DateTimePicker } from "../ui/date-time-picker"
 import { isDueIn } from "#/lib/due-in"
-import { createAssignment } from "#/server/assignments"
+import { createAssignment, deleteAssignment } from "#/server/assignments"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,6 +65,8 @@ import {
 import { IconCheck, IconCopy } from "@tabler/icons-react"
 import { Link } from "@tanstack/react-router"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
+import { uploadAttachments } from "#/lib/attachments/upload"
+import { createAssignmentAttachments } from "#/server/attachments"
 
 const SubmissionFormat = Object.values(PrismaSubmissionFormat).map(
   (format) => ({ label: format, value: format }),
@@ -96,19 +98,27 @@ export function NewAssignmentSheet({
 
   const [isCopying, setIsCopying] = useState(false)
 
-  const formSchema = z.object({
-    title: z.string().min(1, "Title is required"),
-    description: z.string().optional(),
-    images: z.array(z.file()).optional(),
-    courseId: z.string().min(1, "Select a course"),
-    maxScore: z.number().min(1, "Max score is required"),
-    submissionFormat: z
-      .array(z.nativeEnum(PrismaSubmissionFormat))
-      .min(1, "Select at least one submission format"),
-    dueAt: z.date({
-      error: "Due date is required",
-    }),
-  })
+  const formSchema = z
+    .object({
+      title: z.string().min(1, "Title is required"),
+      description: z.string().optional(),
+      images: z.array(z.file()).optional(),
+      courseId: z.string().min(1, "Select a course"),
+      maxScore: z.number().min(1, "Max score is required"),
+      submissionFormat: z
+        .array(z.nativeEnum(PrismaSubmissionFormat))
+        .min(1, "Select at least one submission format"),
+      dueAt: z.date({
+        error: "Due date is required",
+      }),
+    })
+    .refine(
+      (data) => data.description?.trim() || (data.images?.length ?? 0) > 0,
+      {
+        message: "Provide a description or at least one attachment.",
+        path: ["description"],
+      },
+    )
 
   const form = useForm({
     defaultValues: {
@@ -129,9 +139,6 @@ export function NewAssignmentSheet({
       },
     },
     onSubmit: async ({ value }) => {
-      console.log("SUBMIT", value)
-      setError("")
-
       const {
         title,
         description,
@@ -140,15 +147,46 @@ export function NewAssignmentSheet({
         dueAt,
         images,
       } = value
+
+      // if (!description.trim() && images.length === 0) {
+      //   setError("Provide a description or at least one attachment.")
+      //   return
+      // }
+
+      setError("")
+      let assignmentId: string | undefined
       if (!selectedCourse || !dueAt) return
       const course = selectedCourse
       try {
+        // 1 create assignment
         const assignment = await createAssignment({
           data: { title, description, course, maxScore, dueAt, allowedFormats },
         })
 
+        assignmentId = assignment.id
+
+        // 2 upload attachments (with progress) to supabase storage
+        const attachments = await uploadAttachments(
+          "assignment",
+          images,
+          assignmentId,
+          0,
+          (uploaded, total) => {
+            toast.loading(`Uploading files... (${uploaded}/${total}) `, {
+              id: "upload-toast",
+            })
+          },
+        )
+
+        // 3 save attachment records to DB
+        await createAssignmentAttachments({
+          data: { assignmentId, attachments },
+        })
+
+        toast.dismiss("upload-toast")
+
         setCreatedAssignment({
-          id: assignment.id,
+          id: assignmentId,
           assignmentCode: assignment.assignmentCode,
         })
         queryClient.invalidateQueries({
@@ -157,6 +195,14 @@ export function NewAssignmentSheet({
       } catch (err) {
         setError("Failed to create assignment. Please try again.")
         console.error(err)
+        if (assignmentId) {
+          try {
+            await deleteAssignment({ data: { assignmentId } })
+          } catch (e) {
+            console.error("Rollback failed", e)
+          } // Rollback should never crash the error handler.
+        }
+        toast.error("Failed to create assignment", { id: "upload-toast" })
       }
     },
   })
@@ -245,8 +291,8 @@ export function NewAssignmentSheet({
           <AlertDialogHeader>
             <AlertDialogTitle>🎉 Assignment published</AlertDialogTitle>
             <AlertDialogDescription>
-              Students already enrolled have been notified. Anyone who joins
-              later can use the code below to access this assignment.
+              Students already enrolled have been notified. Share this code with
+              students who join later so they can access the assignment.
             </AlertDialogDescription>
 
             <Field>
@@ -301,6 +347,9 @@ export function NewAssignmentSheet({
               <FieldGroup className="gap-5 px-4">
                 <form.Field
                   name="title"
+                  validators={{
+                    onSubmit: z.string().min(1, "Title is required"),
+                  }}
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
@@ -373,6 +422,9 @@ export function NewAssignmentSheet({
 
                 <form.Field
                   name="courseId"
+                  validators={{
+                    onSubmit: z.string().min(1, "Select a course"),
+                  }}
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
@@ -434,6 +486,9 @@ export function NewAssignmentSheet({
 
                 <form.Field
                   name="maxScore"
+                  validators={{
+                    onSubmit: z.number().min(1, "Max score is required"),
+                  }}
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
@@ -461,6 +516,11 @@ export function NewAssignmentSheet({
 
                 <form.Field
                   name="submissionFormat"
+                  validators={{
+                    onSubmit: z
+                      .array(z.nativeEnum(PrismaSubmissionFormat))
+                      .min(1, "Select at least one submission format"),
+                  }}
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
@@ -495,6 +555,11 @@ export function NewAssignmentSheet({
 
                 <form.Field
                   name="dueAt"
+                  validators={{
+                    onSubmit: z.date({
+                      error: "Due date is required",
+                    }),
+                  }}
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
@@ -602,6 +667,7 @@ export function NewAssignmentSheet({
             <Button
               type="button"
               className="h-10"
+              disabled={form.state.isSubmitting}
               onClick={() => {
                 console.log(form.state.values)
                 console.log(form.state.errors)

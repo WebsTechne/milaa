@@ -50,7 +50,7 @@ export type AttachmentBucket =
 async function uploadAttachment(
   type: Attachment,
   file: File,
-  collectionId: string,
+  assignmentId: string,
   position: number,
 ) {
   const processed = await compressIfNeeded(file, PAGE_MAX_MB)
@@ -60,7 +60,7 @@ async function uploadAttachment(
 
   const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "jpg"
   const ext = rawExt === "jpeg" ? "jpg" : rawExt // normalize jpeg → jpg
-  const path = `${collectionId}/${position}.${ext}`
+  const path = `${assignmentId}/${position}.${ext}`
 
   const { data, error } = await supabase.storage
     .from(bucket)
@@ -70,7 +70,7 @@ async function uploadAttachment(
     })
 
   if (error) {
-    console.error("Attachment upload failed:", { path, collectionId, error })
+    console.error("Attachment upload failed:", { path, assignmentId, error })
     throw error
   }
 
@@ -84,7 +84,7 @@ async function uploadAttachment(
 async function uploadAttachments(
   type: Attachment,
   files: File[],
-  collectionId: string,
+  assignmentId: string,
   startPosition: number = 0,
   onProgress?: (uploaded: number, total: number) => void,
 ) {
@@ -95,7 +95,7 @@ async function uploadAttachments(
       const result = await uploadAttachment(
         type,
         file,
-        collectionId,
+        assignmentId,
         startPosition + index,
       )
       uploaded++

@@ -20,8 +20,18 @@ export type SubmissionAttachmentModel = runtime.Types.Result.DefaultSelection<Pr
 
 export type AggregateSubmissionAttachment = {
   _count: SubmissionAttachmentCountAggregateOutputType | null
+  _avg: SubmissionAttachmentAvgAggregateOutputType | null
+  _sum: SubmissionAttachmentSumAggregateOutputType | null
   _min: SubmissionAttachmentMinAggregateOutputType | null
   _max: SubmissionAttachmentMaxAggregateOutputType | null
+}
+
+export type SubmissionAttachmentAvgAggregateOutputType = {
+  position: number | null
+}
+
+export type SubmissionAttachmentSumAggregateOutputType = {
+  position: number | null
 }
 
 export type SubmissionAttachmentMinAggregateOutputType = {
@@ -29,6 +39,7 @@ export type SubmissionAttachmentMinAggregateOutputType = {
   submissionId: string | null
   url: string | null
   fileType: string | null
+  position: number | null
 }
 
 export type SubmissionAttachmentMaxAggregateOutputType = {
@@ -36,6 +47,7 @@ export type SubmissionAttachmentMaxAggregateOutputType = {
   submissionId: string | null
   url: string | null
   fileType: string | null
+  position: number | null
 }
 
 export type SubmissionAttachmentCountAggregateOutputType = {
@@ -43,15 +55,25 @@ export type SubmissionAttachmentCountAggregateOutputType = {
   submissionId: number
   url: number
   fileType: number
+  position: number
   _all: number
 }
 
+
+export type SubmissionAttachmentAvgAggregateInputType = {
+  position?: true
+}
+
+export type SubmissionAttachmentSumAggregateInputType = {
+  position?: true
+}
 
 export type SubmissionAttachmentMinAggregateInputType = {
   id?: true
   submissionId?: true
   url?: true
   fileType?: true
+  position?: true
 }
 
 export type SubmissionAttachmentMaxAggregateInputType = {
@@ -59,6 +81,7 @@ export type SubmissionAttachmentMaxAggregateInputType = {
   submissionId?: true
   url?: true
   fileType?: true
+  position?: true
 }
 
 export type SubmissionAttachmentCountAggregateInputType = {
@@ -66,6 +89,7 @@ export type SubmissionAttachmentCountAggregateInputType = {
   submissionId?: true
   url?: true
   fileType?: true
+  position?: true
   _all?: true
 }
 
@@ -107,6 +131,18 @@ export type SubmissionAttachmentAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SubmissionAttachmentAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SubmissionAttachmentSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SubmissionAttachmentMinAggregateInputType
@@ -137,6 +173,8 @@ export type SubmissionAttachmentGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: SubmissionAttachmentCountAggregateInputType | true
+  _avg?: SubmissionAttachmentAvgAggregateInputType
+  _sum?: SubmissionAttachmentSumAggregateInputType
   _min?: SubmissionAttachmentMinAggregateInputType
   _max?: SubmissionAttachmentMaxAggregateInputType
 }
@@ -146,7 +184,10 @@ export type SubmissionAttachmentGroupByOutputType = {
   submissionId: string
   url: string
   fileType: string
+  position: number
   _count: SubmissionAttachmentCountAggregateOutputType | null
+  _avg: SubmissionAttachmentAvgAggregateOutputType | null
+  _sum: SubmissionAttachmentSumAggregateOutputType | null
   _min: SubmissionAttachmentMinAggregateOutputType | null
   _max: SubmissionAttachmentMaxAggregateOutputType | null
 }
@@ -174,6 +215,7 @@ export type SubmissionAttachmentWhereInput = {
   submissionId?: Prisma.StringFilter<"SubmissionAttachment"> | string
   url?: Prisma.StringFilter<"SubmissionAttachment"> | string
   fileType?: Prisma.StringFilter<"SubmissionAttachment"> | string
+  position?: Prisma.IntFilter<"SubmissionAttachment"> | number
   submission?: Prisma.XOR<Prisma.SubmissionScalarRelationFilter, Prisma.SubmissionWhereInput>
 }
 
@@ -182,6 +224,7 @@ export type SubmissionAttachmentOrderByWithRelationInput = {
   submissionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   submission?: Prisma.SubmissionOrderByWithRelationInput
 }
 
@@ -193,6 +236,7 @@ export type SubmissionAttachmentWhereUniqueInput = Prisma.AtLeast<{
   submissionId?: Prisma.StringFilter<"SubmissionAttachment"> | string
   url?: Prisma.StringFilter<"SubmissionAttachment"> | string
   fileType?: Prisma.StringFilter<"SubmissionAttachment"> | string
+  position?: Prisma.IntFilter<"SubmissionAttachment"> | number
   submission?: Prisma.XOR<Prisma.SubmissionScalarRelationFilter, Prisma.SubmissionWhereInput>
 }, "id">
 
@@ -201,9 +245,12 @@ export type SubmissionAttachmentOrderByWithAggregationInput = {
   submissionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   _count?: Prisma.SubmissionAttachmentCountOrderByAggregateInput
+  _avg?: Prisma.SubmissionAttachmentAvgOrderByAggregateInput
   _max?: Prisma.SubmissionAttachmentMaxOrderByAggregateInput
   _min?: Prisma.SubmissionAttachmentMinOrderByAggregateInput
+  _sum?: Prisma.SubmissionAttachmentSumOrderByAggregateInput
 }
 
 export type SubmissionAttachmentScalarWhereWithAggregatesInput = {
@@ -214,12 +261,14 @@ export type SubmissionAttachmentScalarWhereWithAggregatesInput = {
   submissionId?: Prisma.StringWithAggregatesFilter<"SubmissionAttachment"> | string
   url?: Prisma.StringWithAggregatesFilter<"SubmissionAttachment"> | string
   fileType?: Prisma.StringWithAggregatesFilter<"SubmissionAttachment"> | string
+  position?: Prisma.IntWithAggregatesFilter<"SubmissionAttachment"> | number
 }
 
 export type SubmissionAttachmentCreateInput = {
   id?: string
   url: string
   fileType: string
+  position: number
   submission: Prisma.SubmissionCreateNestedOneWithoutAttachmentsInput
 }
 
@@ -228,12 +277,14 @@ export type SubmissionAttachmentUncheckedCreateInput = {
   submissionId: string
   url: string
   fileType: string
+  position: number
 }
 
 export type SubmissionAttachmentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   submission?: Prisma.SubmissionUpdateOneRequiredWithoutAttachmentsNestedInput
 }
 
@@ -242,6 +293,7 @@ export type SubmissionAttachmentUncheckedUpdateInput = {
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SubmissionAttachmentCreateManyInput = {
@@ -249,12 +301,14 @@ export type SubmissionAttachmentCreateManyInput = {
   submissionId: string
   url: string
   fileType: string
+  position: number
 }
 
 export type SubmissionAttachmentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SubmissionAttachmentUncheckedUpdateManyInput = {
@@ -262,6 +316,7 @@ export type SubmissionAttachmentUncheckedUpdateManyInput = {
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SubmissionAttachmentListRelationFilter = {
@@ -279,6 +334,11 @@ export type SubmissionAttachmentCountOrderByAggregateInput = {
   submissionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  position?: Prisma.SortOrder
+}
+
+export type SubmissionAttachmentAvgOrderByAggregateInput = {
+  position?: Prisma.SortOrder
 }
 
 export type SubmissionAttachmentMaxOrderByAggregateInput = {
@@ -286,6 +346,7 @@ export type SubmissionAttachmentMaxOrderByAggregateInput = {
   submissionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  position?: Prisma.SortOrder
 }
 
 export type SubmissionAttachmentMinOrderByAggregateInput = {
@@ -293,6 +354,11 @@ export type SubmissionAttachmentMinOrderByAggregateInput = {
   submissionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  position?: Prisma.SortOrder
+}
+
+export type SubmissionAttachmentSumOrderByAggregateInput = {
+  position?: Prisma.SortOrder
 }
 
 export type SubmissionAttachmentCreateNestedManyWithoutSubmissionInput = {
@@ -341,12 +407,14 @@ export type SubmissionAttachmentCreateWithoutSubmissionInput = {
   id?: string
   url: string
   fileType: string
+  position: number
 }
 
 export type SubmissionAttachmentUncheckedCreateWithoutSubmissionInput = {
   id?: string
   url: string
   fileType: string
+  position: number
 }
 
 export type SubmissionAttachmentCreateOrConnectWithoutSubmissionInput = {
@@ -383,30 +451,35 @@ export type SubmissionAttachmentScalarWhereInput = {
   submissionId?: Prisma.StringFilter<"SubmissionAttachment"> | string
   url?: Prisma.StringFilter<"SubmissionAttachment"> | string
   fileType?: Prisma.StringFilter<"SubmissionAttachment"> | string
+  position?: Prisma.IntFilter<"SubmissionAttachment"> | number
 }
 
 export type SubmissionAttachmentCreateManySubmissionInput = {
   id?: string
   url: string
   fileType: string
+  position: number
 }
 
 export type SubmissionAttachmentUpdateWithoutSubmissionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SubmissionAttachmentUncheckedUpdateWithoutSubmissionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type SubmissionAttachmentUncheckedUpdateManyWithoutSubmissionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  position?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -416,6 +489,7 @@ export type SubmissionAttachmentSelect<ExtArgs extends runtime.Types.Extensions.
   submissionId?: boolean
   url?: boolean
   fileType?: boolean
+  position?: boolean
   submission?: boolean | Prisma.SubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["submissionAttachment"]>
 
@@ -424,6 +498,7 @@ export type SubmissionAttachmentSelectCreateManyAndReturn<ExtArgs extends runtim
   submissionId?: boolean
   url?: boolean
   fileType?: boolean
+  position?: boolean
   submission?: boolean | Prisma.SubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["submissionAttachment"]>
 
@@ -432,6 +507,7 @@ export type SubmissionAttachmentSelectUpdateManyAndReturn<ExtArgs extends runtim
   submissionId?: boolean
   url?: boolean
   fileType?: boolean
+  position?: boolean
   submission?: boolean | Prisma.SubmissionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["submissionAttachment"]>
 
@@ -440,9 +516,10 @@ export type SubmissionAttachmentSelectScalar = {
   submissionId?: boolean
   url?: boolean
   fileType?: boolean
+  position?: boolean
 }
 
-export type SubmissionAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "submissionId" | "url" | "fileType", ExtArgs["result"]["submissionAttachment"]>
+export type SubmissionAttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "submissionId" | "url" | "fileType" | "position", ExtArgs["result"]["submissionAttachment"]>
 export type SubmissionAttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submission?: boolean | Prisma.SubmissionDefaultArgs<ExtArgs>
 }
@@ -463,6 +540,7 @@ export type $SubmissionAttachmentPayload<ExtArgs extends runtime.Types.Extension
     submissionId: string
     url: string
     fileType: string
+    position: number
   }, ExtArgs["result"]["submissionAttachment"]>
   composites: {}
 }
@@ -891,6 +969,7 @@ export interface SubmissionAttachmentFieldRefs {
   readonly submissionId: Prisma.FieldRef<"SubmissionAttachment", 'String'>
   readonly url: Prisma.FieldRef<"SubmissionAttachment", 'String'>
   readonly fileType: Prisma.FieldRef<"SubmissionAttachment", 'String'>
+  readonly position: Prisma.FieldRef<"SubmissionAttachment", 'Int'>
 }
     
 

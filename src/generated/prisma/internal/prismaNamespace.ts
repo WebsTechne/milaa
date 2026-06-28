@@ -1375,7 +1375,6 @@ export const AssignmentAttachmentScalarFieldEnum = {
   id: 'id',
   assignmentId: 'assignmentId',
   url: 'url',
-  fileType: 'fileType',
   position: 'position'
 } as const
 
@@ -1399,7 +1398,8 @@ export const SubmissionAttachmentScalarFieldEnum = {
   id: 'id',
   submissionId: 'submissionId',
   url: 'url',
-  fileType: 'fileType'
+  fileType: 'fileType',
+  position: 'position'
 } as const
 
 export type SubmissionAttachmentScalarFieldEnum = (typeof SubmissionAttachmentScalarFieldEnum)[keyof typeof SubmissionAttachmentScalarFieldEnum]

@@ -2,11 +2,11 @@ import { getTeacherAssignments } from "#/server/assignments"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { TeacherAssignmentCard } from "./teacher-card"
 import { authClient } from "#/lib/auth-client"
-import { Card, CardAction, CardFooter } from "../ui/card"
 import { Button } from "../ui/button"
 
 import { useState } from "react"
 import { NewAssignmentSheet } from "./new-assignment"
+import { IconPlus } from "@tabler/icons-react"
 
 function TeacherAssignmentsPage() {
   const { data: session, isPending: authPending } = authClient.useSession()
@@ -43,6 +43,14 @@ function TeacherAssignmentsPage() {
           </>
         )}
       </section>
+
+      <Button
+        size="icon-lg"
+        className="fixed right-4 bottom-4 size-12 rounded-full"
+        onClick={() => setNewOpen(true)}
+      >
+        <IconPlus strokeWidth={2.5} className="size-6!" />
+      </Button>
 
       <NewAssignmentSheet open={newOpen} onOpenChange={setNewOpen} />
     </>
