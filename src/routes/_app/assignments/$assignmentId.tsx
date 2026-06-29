@@ -1,25 +1,32 @@
 import { authClient } from "#/lib/auth-client"
 import {
   createFileRoute,
+  Link,
   useParams,
-  useRouter,
   useRouterState,
 } from "@tanstack/react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getAssignmentById } from "#/server/assignments"
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from "#/components/ui/input-group"
+import { IconCheck, IconCopy } from "@tabler/icons-react"
 import { Spinner } from "#/components/ui/spinner"
-import { useEffect } from "react"
 import { useHeaderStore } from "#/lib/header-store"
-import { Link } from "@tanstack/react-router"
+import { copyToClipboard } from "#/lib/copy-to-clipboard"
+import { toast } from "sonner"
+import { useState } from "react"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
   const routerState = useRouterState()
+
+  const [isCopying, setIsCopying] = useState(false)
 
   const { data: session, isPending: authPending } = authClient.useSession()
 
@@ -99,23 +106,50 @@ function RouteComponent() {
 
   setTitleSlot(assignment.title)
 
-  const { title, description, attachments } = assignment
+  const { title, description, assignmentCode, attachments } = assignment
+
+  const handleCopyCode = async () => {
+    const success = await copyToClipboard(assignmentCode)
+
+    if (success) {
+      setIsCopying(true)
+      setTimeout(() => setIsCopying(false), 2000)
+    } else {
+      toast.error("Failed to copy code")
+    }
+  }
 
   return (
     <>
       <section className="mx-auto mb-4 flex max-w-4xl flex-col gap-4">
-        <h1 className="font-heading text-2xl font-bold">{title}</h1>
+        <h1 className="font-heading text-xl font-bold sm:text-2xl">{title}</h1>
+
+        <div className="max-w-120">
+          <InputGroup className="bg-muted h-10 dark:bg-black/60!">
+            <InputGroupInput readOnly value={assignmentCode} />
+            <InputGroupButton
+              title={isCopying ? "Copied!" : "Copy"}
+              onClick={handleCopyCode}
+            >
+              {isCopying ? <IconCheck /> : <IconCopy />}
+            </InputGroupButton>
+          </InputGroup>
+        </div>
 
         {description && (
           <p className="wrap-break-word whitespace-pre-wrap">{description}</p>
         )}
 
-        {attachments && (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {attachments.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {attachments.map((att) => (
               <div className="relative">
-                <img src={att.url} alt={`Image ${att.position}. ${title}`} />
-                <span className="font-heading pointer-events-none absolute right-2 bottom-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
+                <img
+                  src={att.url}
+                  alt={`Image ${att.position}. ${title}`}
+                  className="aspect-auto w-full"
+                />
+                <span className="font-heading pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
                   {att.position < 9 && "0"}
                   {att.position + 1}
                 </span>

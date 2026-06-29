@@ -102,17 +102,17 @@ export function AppHeader(): JSX.Element {
   // console.log(titleSlot)
 
   return (
-    <header className="flex-between bg-background sticky top-0 z-1000 h-12 shrink-0 rounded-t-xl px-4 py-2">
+    <header className="bg-background sticky top-0 z-1000 grid h-12 w-full shrink-0 grid-cols-[1fr_auto] gap-1 rounded-t-xl px-4 py-2">
       {/* <span className="font-logo text-primary text-2xl font-extrabold lg:text-3xl">
         mìlà
       </span> */}
       <div className="flex h-full items-center">
         <SidebarTrigger size="icon" className="-ml-1 [&>svg]:size-5!" />
         <Separator orientation="vertical" className="mx-2 my-auto h-8/10" />
-        <span>{titleSlot}</span>
+        <span className="line-clamp-1 flex-1">{titleSlot}</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <ThemeToggle className="[&>svg]:size-6" />
         <AvatarBtn session={session} authPending={authPending} />
       </div>

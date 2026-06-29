@@ -209,37 +209,6 @@ export function NewAssignmentSheet({
 
   const comboboxChipsInputRef = useRef<HTMLInputElement | null>(null)
 
-  const setDueIn = (
-    field: ReturnType<typeof form.Field>, // or just use field directly
-    amount: number,
-    unit: "days" | "weeks" | "months",
-  ) => {
-    const existing = field.state.value
-
-    let date: Date
-
-    switch (unit) {
-      case "days":
-        date = addDays(new Date(), amount)
-        break
-      case "weeks":
-        date = addWeeks(new Date(), amount)
-        break
-      case "months":
-        date = addMonths(new Date(), amount)
-        break
-    }
-
-    if (existing) {
-      date.setHours(existing.getHours(), existing.getMinutes(), 0, 0)
-    } else {
-      date.setHours(23, 59, 0, 0)
-    }
-
-    field.handleChange(date)
-    setMonth(date)
-  }
-
   const handleCreateCourse = async () => {
     toast.loading("Creating course...", { id: "create-course-toast" })
     const input = comboboxChipsInputRef.current?.value.trim() ?? ""
@@ -479,6 +448,9 @@ export function NewAssignmentSheet({
                             )}
                           </ComboboxContent>
                         </Combobox>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
                       </Field>
                     )
                   }}
@@ -509,6 +481,9 @@ export function NewAssignmentSheet({
                           autoComplete="off"
                           className="h-10"
                         />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
                       </Field>
                     )
                   }}
@@ -548,6 +523,9 @@ export function NewAssignmentSheet({
                             </SelectGroup>
                           </SelectContent>
                         </Select>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
                       </Field>
                     )
                   }}
@@ -563,6 +541,42 @@ export function NewAssignmentSheet({
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid
+
+                    const setDueIn = (
+                      amount: number,
+                      unit: "days" | "weeks" | "months",
+                    ) => {
+                      const existing = field.state.value
+
+                      let date: Date
+
+                      switch (unit) {
+                        case "days":
+                          date = addDays(new Date(), amount)
+                          break
+                        case "weeks":
+                          date = addWeeks(new Date(), amount)
+                          break
+                        case "months":
+                          date = addMonths(new Date(), amount)
+                          break
+                      }
+
+                      if (existing) {
+                        date.setHours(
+                          existing.getHours(),
+                          existing.getMinutes(),
+                          0,
+                          0,
+                        )
+                      } else {
+                        date.setHours(23, 59, 0, 0)
+                      }
+
+                      field.handleChange(date)
+                      setMonth(date)
+                    }
+
                     return (
                       <Field aria-invalid={isInvalid}>
                         <FieldLabel htmlFor={field.name}>Due In</FieldLabel>
@@ -637,6 +651,9 @@ export function NewAssignmentSheet({
                             </Button>
                           </div>
                         </section>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
                       </Field>
                     )
                   }}
