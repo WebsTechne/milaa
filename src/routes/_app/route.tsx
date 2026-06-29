@@ -3,6 +3,7 @@ import { Spinner } from "#/components/ui/spinner"
 import { SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
 import { AppHeader } from "#/components/sections/app-header"
 import { AppSidebar } from "#/components/sections/app-sidebar"
+import { useFooterStore } from "#/lib/store"
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -22,14 +23,20 @@ export const Route = createFileRoute("/_app")({
 })
 
 function AppLayout() {
+  const { footerSlot } = useFooterStore()
+
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="">
+
+      <SidebarInset className="relative">
         <AppHeader />
-        <main className="relative flex-1 overflow-auto [&>section]:px-4">
+
+        <main className="min-h-0 flex-1 overflow-y-auto [&>section]:px-4">
           <Outlet />
         </main>
+
+        {footerSlot}
       </SidebarInset>
     </SidebarProvider>
   )

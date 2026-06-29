@@ -15,9 +15,10 @@ import { ThemeToggle } from "../theme-toggle"
 import { Skeleton } from "../ui/skeleton"
 import { IconLogout, IconUser } from "@tabler/icons-react"
 import getInitials from "#/lib/name"
+
 import { SidebarTrigger } from "../ui/sidebar"
 import { Separator } from "../ui/separator"
-import { useHeaderStore } from "#/lib/header-store"
+import { useHeaderStore } from "#/lib/store"
 
 function AvatarBtn({
   session,

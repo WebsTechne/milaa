@@ -14,11 +14,12 @@ import {
 } from "#/components/ui/input-group"
 import { IconCheck, IconCopy } from "@tabler/icons-react"
 import { Spinner } from "#/components/ui/spinner"
-import { useHeaderStore } from "#/lib/header-store"
+import { useFooterStore, useHeaderStore } from "#/lib/store"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "#/components/ui/button"
+import { cn } from "#/lib/utils"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
@@ -36,6 +37,7 @@ function RouteComponent() {
   })
 
   const setTitleSlot = useHeaderStore((s) => s.setTitleSlot)
+  const setFooterSlot = useFooterStore((s) => s.setFooterSlot)
 
   const { data: assignment, isPending } = useQuery({
     queryKey: ["assignments", assignmentId],
@@ -44,6 +46,29 @@ function RouteComponent() {
 
     staleTime: Infinity,
   })
+
+  const teacherID = assignment?.teacherId
+  const isStudent = !!session && teacherID !== session.user.id
+
+  useEffect(() => {
+    if (!isStudent) {
+      setFooterSlot(null)
+      return
+    }
+
+    setFooterSlot(
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-4">
+        <Button
+          size="lg"
+          className="hover:bg-primary! pointer-events-auto h-11 w-9/10 max-w-90 shadow-(--shadow-sm)"
+        >
+          Submit
+        </Button>
+      </div>,
+    )
+
+    return () => setFooterSlot(null)
+  }, [isStudent, setFooterSlot])
 
   if (authPending || (!!session && isPending))
     return (
@@ -116,8 +141,6 @@ function RouteComponent() {
     teacherId,
   } = assignment
 
-  const isStudent = teacherId !== session.user.id
-
   const handleCopyCode = async () => {
     const success = await copyToClipboard(assignmentCode)
 
@@ -131,7 +154,12 @@ function RouteComponent() {
 
   return (
     <>
-      <section className="mx-auto mb-4 flex max-w-4xl flex-col gap-4 overflow-y-auto">
+      <section
+        className={cn(
+          "mx-auto mb-4 flex max-w-4xl flex-col gap-4",
+          isStudent && "mb-19",
+        )}
+      >
         <h1 className="font-heading text-xl font-bold sm:text-2xl">{title}</h1>
 
         <div className="max-w-120">
@@ -153,7 +181,7 @@ function RouteComponent() {
         {attachments.length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {attachments.map((att) => (
-              <div className="relative">
+              <div key={att.id} className="relative">
                 <img
                   src={att.url}
                   alt={`Image ${att.position}. ${title}`}
@@ -167,16 +195,12 @@ function RouteComponent() {
             ))}
           </div>
         )}
-      </section>
 
-      {isStudent && (
-        <Button
-          size="lg"
-          className="border-border! absolute bottom-4 left-1/2 h-11 w-[calc(100%-32px)] max-w-90 -translate-x-1/2 border! shadow-[0_25px_-12px_var(--tw-shadow-color,rgb(0,0,0,0.7))]"
-        >
-          Submit
-        </Button>
-      )}
+        <div className="bg-muted space-y-1 rounded-lg border p-3 not-md:text-sm">
+          <p className="">Max Score: {maxScore}</p>
+          <p className="">Allowed Formats: {allowedFormats.join(", ")}</p>
+        </div>
+      </section>
     </>
   )
 }

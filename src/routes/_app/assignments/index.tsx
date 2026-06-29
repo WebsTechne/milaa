@@ -2,7 +2,7 @@ import { StudentAssignmentsPage } from "#/components/assignments/students"
 import { TeacherAssignmentsPage } from "#/components/assignments/teachers"
 import { NoSession } from "#/components/sections/no-session"
 import { getSession } from "#/lib/auth-session"
-import { useHeaderStore } from "#/lib/header-store"
+import { useHeaderStore } from "#/lib/store"
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect } from "react"
 

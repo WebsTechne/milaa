@@ -1,4 +1,4 @@
-import { useHeaderStore } from "#/lib/header-store"
+import { useHeaderStore } from "#/lib/store"
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect } from "react"
 
