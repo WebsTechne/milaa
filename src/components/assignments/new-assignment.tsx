@@ -597,7 +597,7 @@ export function NewAssignmentSheet({
                                   : "outline"
                               }
                               size="sm"
-                              onClick={() => setDueIn(field, 1, "days")}
+                              onClick={() => setDueIn(1, "days")}
                             >
                               Tomorrow
                             </Button>
@@ -609,7 +609,7 @@ export function NewAssignmentSheet({
                                   : "outline"
                               }
                               size="sm"
-                              onClick={() => setDueIn(field, 3, "days")}
+                              onClick={() => setDueIn(3, "days")}
                             >
                               3 days
                             </Button>
@@ -621,7 +621,7 @@ export function NewAssignmentSheet({
                                   : "outline"
                               }
                               size="sm"
-                              onClick={() => setDueIn(field, 1, "weeks")}
+                              onClick={() => setDueIn(1, "weeks")}
                             >
                               1 week
                             </Button>
@@ -633,7 +633,7 @@ export function NewAssignmentSheet({
                                   : "outline"
                               }
                               size="sm"
-                              onClick={() => setDueIn(field, 2, "weeks")}
+                              onClick={() => setDueIn(2, "weeks")}
                             >
                               2 weeks
                             </Button>
@@ -645,7 +645,7 @@ export function NewAssignmentSheet({
                                   : "outline"
                               }
                               size="sm"
-                              onClick={() => setDueIn(field, 1, "months")}
+                              onClick={() => setDueIn(1, "months")}
                             >
                               1 month
                             </Button>
