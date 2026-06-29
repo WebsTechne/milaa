@@ -9,8 +9,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getAssignmentById } from "#/server/assignments"
 import {
   InputGroup,
+  InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  InputGroupText,
 } from "#/components/ui/input-group"
 import { IconCheck, IconCopy } from "@tabler/icons-react"
 import { Spinner } from "#/components/ui/spinner"
@@ -20,6 +22,9 @@ import { toast } from "sonner"
 import { useEffect, useState } from "react"
 import { Button } from "#/components/ui/button"
 import { cn } from "#/lib/utils"
+import { Separator } from "#/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar"
+import getInitials from "#/lib/name"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
@@ -131,14 +136,16 @@ function RouteComponent() {
   setTitleSlot(assignment.title)
 
   const {
-    title,
-    description,
+    allowedFormats,
     assignmentCode,
     attachments,
-    allowedFormats,
+    course,
+    description,
     dueAt,
     maxScore,
-    teacherId,
+    status,
+    teacher,
+    title,
   } = assignment
 
   const handleCopyCode = async () => {
@@ -152,53 +159,124 @@ function RouteComponent() {
     }
   }
 
+  const { initials } = getInitials(`${teacher.firstName} ${teacher.lastName}`)
+
   return (
     <>
       <section
         className={cn(
-          "mx-auto mb-4 flex max-w-4xl flex-col gap-4",
+          "mx-auto mb-4 flex max-w-4xl flex-col gap-4 pt-4",
           isStudent && "mb-19",
         )}
       >
-        <h1 className="font-heading text-xl font-bold sm:text-2xl">{title}</h1>
+        <section className="bg-card flex flex-col gap-2 rounded-xl border p-4">
+          <h1 className="font-heading text-lg font-bold duration-200 sm:text-xl md:text-2xl">
+            {title}
+          </h1>
 
-        <div className="max-w-120">
-          <InputGroup className="bg-muted h-10 dark:bg-black/60!">
-            <InputGroupInput readOnly value={assignmentCode} />
-            <InputGroupButton
-              title={isCopying ? "Copied!" : "Copy"}
-              onClick={handleCopyCode}
+          <div className="flex items-center gap-1.5 text-sm">
+            <Link
+              to="/courses/$courseId"
+              params={{ courseId: course.id }}
+              className="bg-muted text-muted-foreground rounded-full border px-3 py-1"
             >
-              {isCopying ? <IconCheck /> : <IconCopy />}
-            </InputGroupButton>
-          </InputGroup>
-        </div>
+              {course.name}
+            </Link>
+
+            <span className="rounded-full border border-green-700/50 bg-green-500/10 px-3 py-1 text-green-500">
+              {status === "ACTIVE" ? "Open" : "Closed"}
+            </span>
+          </div>
+
+          <Separator className="bg-background" />
+
+          <div className="flex items-center gap-2">
+            <Avatar className="size-7">
+              {teacher.image && (
+                <AvatarImage
+                  src={teacher.image}
+                  alt={`${teacher.firstName} ${teacher.lastName}`}
+                />
+              )}
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm">{`${teacher.firstName} ${teacher.lastName}`}</span>
+          </div>
+        </section>
 
         {description && (
-          <p className="wrap-break-word whitespace-pre-wrap">{description}</p>
+          <>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-muted-foreground font-heading text-sm font-semibold tracking-wide">
+                DESCRIPTION
+              </h3>
+              <p className="wrap-break-word whitespace-pre-wrap">
+                {description}
+              </p>
+            </div>
+
+            <Separator />
+          </>
         )}
 
         {attachments.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {attachments.map((att) => (
-              <div key={att.id} className="relative">
-                <img
-                  src={att.url}
-                  alt={`Image ${att.position}. ${title}`}
-                  className="aspect-auto w-full"
-                />
-                <span className="font-heading pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
-                  {att.position < 9 && "0"}
-                  {att.position + 1}
-                </span>
+          <>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-muted-foreground font-heading text-sm font-semibold tracking-wide">
+                ATTACHMENTS ({attachments.length})
+              </h3>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="relative overflow-clip rounded-md border"
+                  >
+                    <img
+                      src={att.url}
+                      alt={`Image ${att.position}. ${title}`}
+                      className="aspect-auto w-full"
+                    />
+                    <span className="font-heading pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
+                      {att.position < 9 && "0"}
+                      {att.position + 1}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+
+            <Separator />
+          </>
         )}
 
         <div className="bg-muted space-y-1 rounded-lg border p-3 not-md:text-sm">
           <p className="">Max Score: {maxScore}</p>
           <p className="">Allowed Formats: {allowedFormats.join(", ")}</p>
+        </div>
+
+        <Separator />
+
+        <div className="flex flex-col gap-2">
+          <h3 className="text-muted-foreground font-heading text-sm font-semibold tracking-wide">
+            ASSIGNMENT CODE
+          </h3>
+
+          <div className="max-w-120">
+            <InputGroup className="bg-muted h-11 dark:bg-black/60!">
+              <InputGroupInput readOnly value={assignmentCode} />
+              <InputGroupAddon align="block-end">
+                <InputGroupText>Code</InputGroupText>
+                <InputGroupButton
+                  title={isCopying ? "Copied!" : "Copy"}
+                  onClick={handleCopyCode}
+                  className="ml-auto"
+                >
+                  {isCopying ? <IconCheck /> : <IconCopy />}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
         </div>
       </section>
     </>

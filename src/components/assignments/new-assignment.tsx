@@ -45,7 +45,7 @@ import { addDays, addWeeks, addMonths } from "date-fns"
 
 import { SubmissionFormat as PrismaSubmissionFormat } from "#/generated/prisma/enums"
 import { DateTimePicker } from "../ui/date-time-picker"
-import { isDueIn } from "#/lib/due-in"
+import { isDueIn } from "#/lib/due-time"
 import { createAssignment, deleteAssignment } from "#/server/assignments"
 import {
   AlertDialog,

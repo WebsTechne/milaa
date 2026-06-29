@@ -109,7 +109,7 @@ export function AppHeader(): JSX.Element {
       </span> */}
       <div className="flex h-full items-center">
         <SidebarTrigger size="icon" className="-ml-1 [&>svg]:size-5!" />
-        <Separator orientation="vertical" className="mx-2 my-auto h-8/10" />
+        <Separator orientation="vertical" className="mx-2 my-auto h-6/10" />
         <span className="line-clamp-1 flex-1">{titleSlot}</span>
       </div>
 
