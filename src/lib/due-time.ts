@@ -26,19 +26,14 @@ const getDueLabel = (date: Date): DueData => {
   const tomorrow = new Date(today)
   tomorrow.setDate(today.getDate() + 1)
 
-  const isSameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-
   if (isSameDay(date, today)) return { label: "Due today", urgent: true }
   if (isSameDay(date, tomorrow)) return { label: "Due tomorrow", urgent: true }
 
-  if (
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth()
-  )
-    return { label: "Due this month", urgent: false }
+  // if () return { label: "", urgent: false }
+
+  if (date.getFullYear() === today.getFullYear())
+    if (date.getDate() < today.getDate() + 7)
+      return { label: "Due this week", urgent: false }
 }
 
 export { isDueIn, getDueLabel }
