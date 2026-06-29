@@ -27,7 +27,7 @@ function AppLayout() {
       <AppSidebar />
       <SidebarInset className="">
         <AppHeader />
-        <main className="[&>section]:px-4">
+        <main className="relative flex-1 overflow-auto [&>section]:px-4">
           <Outlet />
         </main>
       </SidebarInset>

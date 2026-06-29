@@ -18,6 +18,7 @@ import { useHeaderStore } from "#/lib/header-store"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
 import { toast } from "sonner"
 import { useState } from "react"
+import { Button } from "#/components/ui/button"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
@@ -102,11 +103,20 @@ function RouteComponent() {
     )
   }
 
-  // if (session.user.) {}
-
   setTitleSlot(assignment.title)
 
-  const { title, description, assignmentCode, attachments } = assignment
+  const {
+    title,
+    description,
+    assignmentCode,
+    attachments,
+    allowedFormats,
+    dueAt,
+    maxScore,
+    teacherId,
+  } = assignment
+
+  const isStudent = teacherId !== session.user.id
 
   const handleCopyCode = async () => {
     const success = await copyToClipboard(assignmentCode)
@@ -121,7 +131,7 @@ function RouteComponent() {
 
   return (
     <>
-      <section className="mx-auto mb-4 flex max-w-4xl flex-col gap-4">
+      <section className="mx-auto mb-4 flex max-w-4xl flex-col gap-4 overflow-y-auto">
         <h1 className="font-heading text-xl font-bold sm:text-2xl">{title}</h1>
 
         <div className="max-w-120">
@@ -158,6 +168,15 @@ function RouteComponent() {
           </div>
         )}
       </section>
+
+      {isStudent && (
+        <Button
+          size="lg"
+          className="border-border! absolute bottom-4 left-1/2 h-11 w-[calc(100%-32px)] max-w-90 -translate-x-1/2 border! shadow-[0_25px_-12px_var(--tw-shadow-color,rgb(0,0,0,0.7))]"
+        >
+          Submit
+        </Button>
+      )}
     </>
   )
 }
