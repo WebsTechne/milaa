@@ -33,7 +33,11 @@ export const auth = betterAuth({
     enabled: true,
   },
 
-  trustedOrigins: ["mila://*", "http://10.64.106.24:3000"],
+  trustedOrigins: [
+    "mila://*",
+    "http://10.64.106.24:3000",
+    "http://10.226.48.24:3000",
+  ],
 
   plugins: [tanstackStartCookies()],
 })

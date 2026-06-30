@@ -3,12 +3,13 @@ import type { AssignmentListData } from "#/server/assignments"
 import { Link } from "@tanstack/react-router"
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card"
+import { cn } from "#/lib/utils"
+import { getDueLabel } from "#/lib/due-time"
 
 function TeacherAssignmentCard({
   assignment,
@@ -17,20 +18,43 @@ function TeacherAssignmentCard({
   assignment: AssignmentListData
   session: ServerSession
 }) {
+  if (!session) return null
+
+  const { id, title, description, course, dueAt, maxScore, teacher } =
+    assignment
+
+  const dueLabel = getDueLabel(dueAt)
+  const isStudent = teacher.id !== session.user.id
+
   return (
-    <Link
-      to="/assignments/$assignmentId"
-      params={{ assignmentId: assignment.id }}
-    >
+    <Link to="/assignments/$assignmentId" params={{ assignmentId: id }}>
       <Card>
         <CardHeader>
-          <CardTitle className="truncate">{assignment.title}</CardTitle>
-          {assignment.description && (
+          <CardTitle className="truncate">{title}</CardTitle>
+          {description && (
             <CardDescription className="line-clamp-3">
-              {assignment.description}
+              {description}
             </CardDescription>
           )}
         </CardHeader>
+        <div className="flex-between px-4">
+          <span className="">
+            {course.name} •{" "}
+            <span className="font-bold">
+              {maxScore} mark{maxScore !== 1 && "s"}
+            </span>
+          </span>
+          <span
+            className={cn(
+              "flex items-center gap-1 rounded-full border px-2 py-1 text-sm",
+              dueLabel.urgent
+                ? "border-red-700/50 bg-red-500/10 text-red-500"
+                : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+            )}
+          >
+            {dueLabel.heading}
+          </span>
+        </div>
       </Card>
     </Link>
   )

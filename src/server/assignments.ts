@@ -42,7 +42,9 @@ const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
           title: true,
           description: true,
           dueAt: true,
+          maxScore: true,
           course: { select: { name: true } },
+          teacher: { select: { id: true } },
           _count: { select: { submissions: true } },
         },
       })
@@ -56,7 +58,9 @@ type AssignmentListData = Prisma.AssignmentGetPayload<{
     title: true
     description: true
     dueAt: true
+    maxScore: true
     course: { select: { name: true } }
+    teacher: { select: { id: true } }
     _count: { select: { submissions: true } }
   }
 }>
