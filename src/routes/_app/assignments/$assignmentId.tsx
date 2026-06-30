@@ -14,7 +14,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "#/components/ui/input-group"
-import { IconCheck, IconCopy } from "@tabler/icons-react"
+import { IconCheck, IconClock, IconCopy } from "@tabler/icons-react"
 import { Spinner } from "#/components/ui/spinner"
 import { useFooterStore, useHeaderStore } from "#/lib/store"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
@@ -25,6 +25,8 @@ import { cn } from "#/lib/utils"
 import { Separator } from "#/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar"
 import getInitials from "#/lib/name"
+import { getDueLabel } from "#/lib/due-time"
+import { format } from "date-fns"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
@@ -161,11 +163,13 @@ function RouteComponent() {
 
   const { initials } = getInitials(`${teacher.firstName} ${teacher.lastName}`)
 
+  const dueLabel = getDueLabel(dueAt)
+
   return (
     <>
       <section
         className={cn(
-          "mx-auto mb-4 flex max-w-4xl flex-col gap-4 pt-4",
+          "mx-auto mb-4 flex max-w-4xl flex-col gap-5 pt-4",
           isStudent && "mb-19",
         )}
       >
@@ -185,6 +189,18 @@ function RouteComponent() {
 
             <span className="rounded-full border border-green-700/50 bg-green-500/10 px-3 py-1 text-green-500">
               {status === "ACTIVE" ? "Open" : "Closed"}
+            </span>
+
+            <span
+              className={cn(
+                "flex items-center gap-1 rounded-full border px-3 py-1",
+                dueLabel.urgent
+                  ? "border-red-700/50 bg-red-500/10 text-red-500"
+                  : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+              )}
+            >
+              <IconClock size={16} />
+              {dueLabel.label}
             </span>
           </div>
 
@@ -250,9 +266,49 @@ function RouteComponent() {
           </>
         )}
 
-        <div className="bg-muted space-y-1 rounded-lg border p-3 not-md:text-sm">
-          <p className="">Max Score: {maxScore}</p>
-          <p className="">Allowed Formats: {allowedFormats.join(", ")}</p>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-muted-foreground font-heading text-sm font-semibold tracking-wide">
+            DETAILS
+          </h3>
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-muted space-y-1 rounded-lg border p-3">
+                <p className="text-muted-foreground text-sm">Max score</p>
+                <p className="font-heading text-lg font-semibold">{maxScore}</p>
+              </div>
+              <div
+                className={cn(
+                  "space-y-1 rounded-lg border p-3",
+                  dueLabel.urgent
+                    ? "border-red-700/50 bg-red-500/10 text-red-500"
+                    : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+                )}
+              >
+                <p
+                  className={cn(
+                    "flex items-center gap-1 text-sm",
+                    dueLabel.urgent ? "text-red-400/90" : "text-amber-400/90",
+                  )}
+                >
+                  <IconClock size={16} />
+                  Due date
+                </p>
+                <p className="font-heading text-lg font-semibold">
+                  {dueLabel.heading}
+                </p>
+                <p className="-mt-1 text-sm">
+                  {format(dueAt, "MMMM d · h:mm a")}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-muted space-y-1 rounded-lg border p-3">
+              <p className="text-muted-foreground text-sm">Allowed Formats</p>
+              <p className="font-heading text-lg font-semibold">
+                {allowedFormats.join(", ")}
+              </p>
+            </div>
+          </div>
         </div>
 
         <Separator />
