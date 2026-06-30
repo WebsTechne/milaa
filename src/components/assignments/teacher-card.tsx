@@ -11,13 +11,24 @@ import {
 import { cn } from "#/lib/utils"
 import { getDueLabel } from "#/lib/due-time"
 import { Button } from "../ui/button"
-import { IconCopy, IconDotsVertical } from "@tabler/icons-react"
+import {
+  IconCheck,
+  IconCopy,
+  IconDotsVertical,
+  IconEdit,
+  IconFileCheck,
+  IconTrash,
+} from "@tabler/icons-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
+import { copyToClipboard } from "#/lib/copy-to-clipboard"
+import { useState } from "react"
+import { toast } from "sonner"
 
 function TeacherAssignmentCard({
   assignment,
@@ -28,11 +39,33 @@ function TeacherAssignmentCard({
 }) {
   if (!session) return null
 
-  const { id, title, description, course, dueAt, maxScore, teacher } =
-    assignment
+  const [isCopying, setIsCopying] = useState(false)
+
+  const {
+    id,
+    title,
+    description,
+    course,
+    dueAt,
+    maxScore,
+    teacher,
+    assignmentCode,
+  } = assignment
 
   const dueLabel = getDueLabel(dueAt)
   const isStudent = teacher.id !== session.user.id
+
+  const handleCopyCode = async () => {
+    const success = await copyToClipboard(assignmentCode)
+
+    if (success) {
+      toast.success("Code copied to clipboard")
+      setIsCopying(true)
+      setTimeout(() => setIsCopying(false), 2000)
+    } else {
+      toast.error("Failed to copy code")
+    }
+  }
 
   return (
     <Link to="/assignments/$assignmentId" params={{ assignmentId: id }}>
@@ -55,19 +88,35 @@ function TeacherAssignmentCard({
               >
                 <IconDotsVertical className="size-5!" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-40">
-                <DropdownMenuItem>
-                  <IconCopy /> Copy code
+              <DropdownMenuContent className="w-max min-w-45">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleCopyCode()
+                  }}
+                >
+                  {isCopying ? <IconCheck /> : <IconCopy />} Copy code
                 </DropdownMenuItem>
+
                 {!isStudent && (
                   <>
                     <DropdownMenuItem>
-                      {/*<Iconedit />*/}
+                      <IconEdit />
                       Edit assignment
                     </DropdownMenuItem>
-                    <DropdownMenuItem>View submissions</DropdownMenuItem>
-                    {/*<Separator/>*/}
-                    <DropdownMenuItem>Delete assignment</DropdownMenuItem>
+
+                    <DropdownMenuItem>
+                      <IconFileCheck />
+                      View submissions
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem variant="destructive">
+                      <IconTrash />
+                      Delete assignment
+                    </DropdownMenuItem>
                   </>
                 )}
               </DropdownMenuContent>
