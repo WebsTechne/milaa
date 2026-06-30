@@ -62,7 +62,7 @@ function TeacherAssignmentCard({
                 {!isStudent && (
                   <>
                     <DropdownMenuItem>
-                      <Iconedit />
+                      {/*<Iconedit />*/}
                       Edit assignment
                     </DropdownMenuItem>
                     <DropdownMenuItem>View submissions</DropdownMenuItem>
