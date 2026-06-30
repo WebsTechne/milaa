@@ -233,9 +233,11 @@ function RouteComponent() {
             <span
               className={cn(
                 "flex items-center gap-1 rounded-full border px-2 py-1",
-                dueLabel.urgent
+                dueLabel.urgency === "urgent"
                   ? "border-red-700/50 bg-red-500/10 text-red-500"
-                  : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+                  : dueLabel.urgency === "soon"
+                    ? "border-amber-700/50 bg-amber-500/10 text-amber-500"
+                    : "text-muted-foreground bg-muted",
               )}
             >
               <IconClock size={16} />
@@ -320,15 +322,21 @@ function RouteComponent() {
               <div
                 className={cn(
                   "space-y-1 rounded-lg border p-3",
-                  dueLabel.urgent
+                  dueLabel.urgency === "urgent"
                     ? "border-red-700/50 bg-red-500/10 text-red-500"
-                    : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+                    : dueLabel.urgency === "soon"
+                      ? "border-amber-700/50 bg-amber-500/10 text-amber-500"
+                      : "text-foreground bg-muted",
                 )}
               >
                 <p
                   className={cn(
                     "flex items-center gap-1 text-sm",
-                    dueLabel.urgent ? "text-red-400/90" : "text-amber-400/90",
+                    dueLabel.urgency === "urgent"
+                      ? "text-red-500/80"
+                      : dueLabel.urgency === "soon"
+                        ? "text-amber-500/80"
+                        : "text-muted-foreground",
                   )}
                 >
                   <IconClock size={16} />

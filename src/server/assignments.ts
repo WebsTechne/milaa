@@ -48,6 +48,7 @@ const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
           assignmentCode: true,
           _count: { select: { submissions: true } },
         },
+        orderBy: { createdAt: "desc" },
       })
       return assignments
     } catch (err) {}
@@ -63,9 +64,35 @@ type AssignmentListData = Prisma.AssignmentGetPayload<{
     course: { select: { name: true } }
     teacher: { select: { id: true } }
     assignmentCode: true
-    _count: { select: { submissions: true } }
   }
 }>
+
+const getStudentAssignments = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    try {
+      const assignments = await prisma.assignment.findMany({
+        where: {
+          course: { enrollments: { some: { studentId: session.user.id } } },
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          dueAt: true,
+          maxScore: true,
+          course: { select: { name: true } },
+          teacher: { select: { id: true } },
+          assignmentCode: true,
+        },
+        orderBy: { dueAt: "asc" },
+      })
+      return assignments
+    } catch (err) {}
+  },
+)
 
 const createAssignment = createServerFn({ method: "POST" })
   .validator(
@@ -125,6 +152,7 @@ const deleteAssignment = createServerFn({ method: "POST" })
 export type { AssignmentListData }
 export {
   getAssignmentById,
+  getStudentAssignments,
   getTeacherAssignments,
   createAssignment,
   deleteAssignment,

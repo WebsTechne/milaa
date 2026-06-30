@@ -1,18 +1,13 @@
 import type { ServerSession } from "#/lib/types"
 import type { AssignmentListData } from "#/server/assignments"
 import { Link } from "@tanstack/react-router"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { cn } from "#/lib/utils"
 import { getDueLabel } from "#/lib/due-time"
 import { Button } from "../ui/button"
 import {
   IconCheck,
+  IconClock,
   IconCopy,
   IconDotsVertical,
   IconEdit,
@@ -29,8 +24,18 @@ import {
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
 import { useState } from "react"
 import { toast } from "sonner"
+import { Skeleton } from "../ui/skeleton"
 
-function TeacherAssignmentCard({
+function AssignmentCardSkeleton() {
+  return (
+    <div className="bg-card ring-foreground/10 relative h-46.5 w-full rounded-xl ring-1">
+      <Skeleton className="size-full"></Skeleton>
+      <div className="bg-muted absolute right-4 bottom-4 z-2 h-7.5 w-23.5 rounded-full border" />
+    </div>
+  )
+}
+
+function AssignmentCard({
   assignment,
   session,
 }: {
@@ -139,11 +144,14 @@ function TeacherAssignmentCard({
           <span
             className={cn(
               "flex items-center gap-1 rounded-full border px-2 py-1 text-sm",
-              dueLabel.urgent
+              dueLabel.urgency === "urgent"
                 ? "border-red-700/50 bg-red-500/10 text-red-500"
-                : "border-amber-700/50 bg-amber-500/10 text-amber-500",
+                : dueLabel.urgency === "soon"
+                  ? "border-amber-700/50 bg-amber-500/10 text-amber-500"
+                  : "text-muted-foreground bg-muted",
             )}
           >
+            <IconClock size={16} />
             {dueLabel.heading}
           </span>
         </div>
@@ -152,4 +160,4 @@ function TeacherAssignmentCard({
   )
 }
 
-export { TeacherAssignmentCard }
+export { AssignmentCardSkeleton, AssignmentCard }

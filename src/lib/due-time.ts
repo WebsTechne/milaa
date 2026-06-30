@@ -26,7 +26,11 @@ function isDueIn(
   return isSameDay(date, target)
 }
 
-type DueData = { label: string; heading: string; urgent: boolean }
+type DueData = {
+  label: string
+  heading: string
+  urgency: "urgent" | "soon" | "normal"
+}
 
 const getDueLabel = (date: Date): DueData => {
   const daysTill = differenceInCalendarDays(date, new Date())
@@ -41,43 +45,43 @@ const getDueLabel = (date: Date): DueData => {
       return {
         label: `Overdue (${Math.abs(daysTill)} days)`,
         heading: `${Math.abs(daysTill)} days`,
-        urgent: true,
+        urgency: "urgent",
       }
     return {
       label: `Overdue since ${format(date, "MMM d")}`,
       heading: `${format(date, "MMM d")}`,
-      urgent: true,
+      urgency: "urgent",
     }
   }
 
   // due today or tomorrow
   if (daysTill === 0)
-    return { label: "Due today", heading: "Today", urgent: true }
+    return { label: "Due today", heading: "Today", urgency: "urgent" }
   if (daysTill === 1)
-    return { label: "Due tomorrow", heading: "Tomorrow", urgent: true }
+    return { label: "Due tomorrow", heading: "Tomorrow", urgency: "urgent" }
 
   // this week
   if (daysTill < 3)
     return {
       label: `Due in ${daysTill} days`,
       heading: `${daysTill} days`,
-      urgent: true,
+      urgency: "soon",
     }
   if (daysTill < 7)
     return {
       label: `Due in ${daysTill} days`,
       heading: `${daysTill} days`,
-      urgent: false,
+      urgency: "soon",
     }
   if (daysTill === 7)
-    return { label: `Due in 1 week`, heading: "1 week", urgent: false }
+    return { label: `Due in 1 week`, heading: "1 week", urgency: "soon" }
 
   // next week
   if (daysTill < 14)
     return {
       label: `Due in ${daysTill} days`,
       heading: `${daysTill} days`,
-      urgent: false,
+      urgency: "normal",
     }
 
   // weeks
@@ -85,7 +89,7 @@ const getDueLabel = (date: Date): DueData => {
     return {
       label: `Due in ${weeksTill} week${weeksTill !== 1 ? "s" : ""}`,
       heading: `${weeksTill} week${weeksTill !== 1 ? "s" : ""}`,
-      urgent: false,
+      urgency: "normal",
     }
 
   // months
@@ -93,14 +97,14 @@ const getDueLabel = (date: Date): DueData => {
     return {
       label: `Due in ${monthsTill} month${monthsTill !== 1 ? "s" : ""}`,
       heading: `${monthsTill} month${monthsTill !== 1 ? "s" : ""}`,
-      urgent: false,
+      urgency: "normal",
     }
 
   // beyond 3 months
   return {
     label: `Due ${format(date, "MMM d")}`,
     heading: `${format(date, "MMM d")}`,
-    urgent: false,
+    urgency: "normal",
   }
 }
 

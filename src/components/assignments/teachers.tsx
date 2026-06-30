@@ -1,6 +1,6 @@
 import { getTeacherAssignments } from "#/server/assignments"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { TeacherAssignmentCard } from "./teacher-card"
+import { AssignmentCard, AssignmentCardSkeleton } from "./teacher-card"
 import { authClient } from "#/lib/auth-client"
 import { Button } from "../ui/button"
 
@@ -8,7 +8,7 @@ import { useState } from "react"
 import { NewAssignmentSheet } from "./new-assignment"
 import { IconPlus } from "@tabler/icons-react"
 import { useHeaderStore } from "#/lib/store"
-import { Link, useParams, useRouterState } from "@tanstack/react-router"
+import { Link, useRouterState } from "@tanstack/react-router"
 import { Spinner } from "../ui/spinner"
 
 function TeacherAssignmentsPage() {
@@ -25,7 +25,7 @@ function TeacherAssignmentsPage() {
     queryFn: () => getTeacherAssignments(),
   })
 
-  if (authPending || (!!session && isPending))
+  if (authPending)
     return (
       <div className="flex-center h-[calc(100dvh-16px-48px)]">
         <Spinner className="size-7" />
@@ -60,12 +60,11 @@ function TeacherAssignmentsPage() {
 
   return (
     <>
-      <section className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+      <section className="my-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {isPending ? (
-          /* {Array.from({ length: 3 }).map((_, i) => (
-          <CollectionCardSkeleton key={i} />
-        ))} */
-          <></>
+          Array.from({ length: 3 }).map((_, i) => (
+            <AssignmentCardSkeleton key={i} />
+          ))
         ) : assignments.length < 1 ? (
           <div className="flex flex-col items-center rounded-xl border border-dashed bg-transparent p-4 shadow-none">
             <p className="py-4 text-center">No assignments found.</p>
@@ -74,7 +73,7 @@ function TeacherAssignmentsPage() {
         ) : (
           <>
             {assignments.map((assignment) => (
-              <TeacherAssignmentCard
+              <AssignmentCard
                 key={assignment.id}
                 assignment={assignment}
                 session={session}

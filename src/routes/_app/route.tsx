@@ -32,7 +32,7 @@ function AppLayout() {
       <SidebarInset className="relative">
         <AppHeader />
 
-        <main className="min-h-0 flex-1 overflow-y-auto [&>section]:px-4">
+        <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto [&>section]:px-4">
           <Outlet />
         </main>
 
