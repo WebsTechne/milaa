@@ -14,7 +14,13 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "#/components/ui/input-group"
-import { IconCheck, IconClock, IconCopy } from "@tabler/icons-react"
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconCheck,
+  IconClock,
+  IconCopy,
+} from "@tabler/icons-react"
 import { Spinner } from "#/components/ui/spinner"
 import { useFooterStore, useHeaderStore } from "#/lib/store"
 import { copyToClipboard } from "#/lib/copy-to-clipboard"
@@ -36,6 +42,7 @@ function RouteComponent() {
   const routerState = useRouterState()
 
   const [isCopying, setIsCopying] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const { data: session, isPending: authPending } = authClient.useSession()
 
@@ -76,6 +83,38 @@ function RouteComponent() {
 
     return () => setFooterSlot(null)
   }, [isStudent, setFooterSlot])
+
+  useEffect(() => {
+    if (lightboxIndex === null || !attachments.length) return
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      switch (event.key) {
+        case "Escape":
+          setLightboxIndex(null)
+          break
+
+        case "ArrowLeft":
+          setLightboxIndex((prev) =>
+            prev !== null
+              ? (prev - 1 + attachments.length) % attachments.length
+              : null,
+          )
+          break
+
+        case "ArrowRight":
+          setLightboxIndex((prev) =>
+            prev !== null ? (prev + 1) % attachments.length : null,
+          )
+          break
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [lightboxIndex])
 
   if (authPending || (!!session && isPending))
     return (
@@ -193,7 +232,7 @@ function RouteComponent() {
 
             <span
               className={cn(
-                "flex items-center gap-1 rounded-full border px-3 py-1",
+                "flex items-center gap-1 rounded-full border px-2 py-1",
                 dueLabel.urgent
                   ? "border-red-700/50 bg-red-500/10 text-red-500"
                   : "border-amber-700/50 bg-amber-500/10 text-amber-500",
@@ -243,19 +282,20 @@ function RouteComponent() {
               </h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {attachments.map((att) => (
+                {attachments.map((att, i) => (
                   <div
                     key={att.id}
                     className="relative overflow-clip rounded-md border"
                   >
                     <img
                       src={att.url}
-                      alt={`Image ${att.position}. ${title}`}
+                      alt={`Attachment ${i + 1}. ${title}`}
+                      onClick={() => setLightboxIndex(i)}
                       className="aspect-auto w-full"
                     />
                     <span className="font-heading pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
-                      {att.position < 9 && "0"}
-                      {att.position + 1}
+                      {i < 9 && "0"}
+                      {i + 1}
                     </span>
                   </div>
                 ))}
@@ -276,6 +316,7 @@ function RouteComponent() {
                 <p className="text-muted-foreground text-sm">Max score</p>
                 <p className="font-heading text-lg font-semibold">{maxScore}</p>
               </div>
+
               <div
                 className={cn(
                   "space-y-1 rounded-lg border p-3",
@@ -335,6 +376,52 @@ function RouteComponent() {
           </div>
         </div>
       </section>
+
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/80"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <img
+            src={attachments[lightboxIndex].url}
+            alt={`page ${lightboxIndex + 1}`}
+            className="max-h-[90dvh] max-w-[calc(100dvw-16px)] rounded-lg object-contain"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {/* prev/next */}
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute bottom-1 left-1 disabled:pointer-events-auto! md:top-1/2 md:left-4 md:-translate-y-1/2"
+            disabled={!(lightboxIndex > 0)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setLightboxIndex(lightboxIndex - 1)
+            }}
+          >
+            <IconArrowLeft className="size-5!" strokeWidth={2} />
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute right-1 bottom-1 disabled:pointer-events-auto! md:top-1/2 md:right-4 md:-translate-y-1/2"
+            disabled={!(lightboxIndex < attachments.length - 1)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setLightboxIndex(lightboxIndex + 1)
+            }}
+          >
+            <IconArrowRight className="size-5!" strokeWidth={2} />
+          </Button>
+          <span className="flex-center absolute bottom-0 h-10 text-sm text-white">
+            {lightboxIndex + 1} / {attachments.length}
+          </span>
+        </div>
+      )}
     </>
   )
 }
