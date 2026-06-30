@@ -291,7 +291,7 @@ function RouteComponent() {
                       src={att.url}
                       alt={`Attachment ${i + 1}. ${title}`}
                       onClick={() => setLightboxIndex(i)}
-                      className="aspect-auto w-full"
+                      className="aspect-auto w-full cursor-pointer"
                     />
                     <span className="font-heading pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-xs font-bold text-white">
                       {i < 9 && "0"}
