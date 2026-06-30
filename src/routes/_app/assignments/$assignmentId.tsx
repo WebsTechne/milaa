@@ -297,7 +297,7 @@ function RouteComponent() {
                   {dueLabel.heading}
                 </p>
                 <p className="-mt-1 text-sm">
-                  {format(dueAt, "MMMM d · h:mm a")}
+                  {format(dueAt, "MMM d · h:mm a")}
                 </p>
               </div>
             </div>
