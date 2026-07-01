@@ -33,4 +33,23 @@ const getCourses = createServerFn({ method: "GET" }).handler(async () => {
   }
 })
 
-export { createCourse, getCourses }
+const enrollInCourse = createServerFn({ method: "POST" })
+  .validator((data: { courseId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    const { courseId } = data
+
+    try {
+      const enrollment = await prisma.enrollment.create({
+        data: { courseId, studentId: session.user.id },
+      })
+      return enrollment
+    } catch (err) {
+      console.error("❌ enrollInCourse error:", err)
+      throw err
+    }
+  })
+
+export { createCourse, getCourses, enrollInCourse }

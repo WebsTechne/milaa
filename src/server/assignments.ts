@@ -22,11 +22,46 @@ const getAssignmentById = createServerFn({ method: "GET" })
       })
 
       if (!assignment) return null
-      return assignment
+
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          courseId_studentId: {
+            courseId: assignment.courseId,
+            studentId: session.user.id,
+          },
+        },
+        select: { id: true },
+      })
+
+      return { ...assignment, isEnrolled: !!enrollment }
     } catch (err) {
       console.error("❌ getAssignmentById error:", err)
       throw err
     }
+  })
+
+const getAssignmentByCode = createServerFn({ method: "GET" })
+  .validator((data: { code: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    try {
+      const assignments = await prisma.assignment.findUnique({
+        where: { assignmentCode: data.code },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          dueAt: true,
+          maxScore: true,
+          course: { select: { name: true } },
+          teacher: { select: { id: true } },
+          assignmentCode: true,
+        },
+      })
+      return assignments
+    } catch (err) {}
   })
 
 const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
@@ -46,7 +81,6 @@ const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
           course: { select: { name: true } },
           teacher: { select: { id: true } },
           assignmentCode: true,
-          _count: { select: { submissions: true } },
         },
         orderBy: { createdAt: "desc" },
       })
@@ -152,6 +186,7 @@ const deleteAssignment = createServerFn({ method: "POST" })
 export type { AssignmentListData }
 export {
   getAssignmentById,
+  getAssignmentByCode,
   getStudentAssignments,
   getTeacherAssignments,
   createAssignment,

@@ -33,6 +33,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar"
 import getInitials from "#/lib/name"
 import { getDueLabel } from "#/lib/due-time"
 import { format } from "date-fns"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "#/components/ui/alert-dialog"
+import { enrollInCourse } from "#/server/courses"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: RouteComponent,
@@ -40,9 +51,11 @@ export const Route = createFileRoute("/_app/assignments/$assignmentId")({
 
 function RouteComponent() {
   const routerState = useRouterState()
+  const queryClient = useQueryClient()
 
   const [isCopying, setIsCopying] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [joinCourseDialog, setJoinCourseDialog] = useState(false)
 
   const { data: session, isPending: authPending } = authClient.useSession()
 
@@ -70,19 +83,23 @@ function RouteComponent() {
       return
     }
 
+    const enrolled = assignment?.isEnrolled
+    if (!enrolled) setJoinCourseDialog(true)
+
     setFooterSlot(
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-4">
         <Button
           size="lg"
           className="hover:bg-primary! pointer-events-auto h-11 w-9/10 max-w-90 shadow-(--shadow-sm)"
+          onClick={() => (!enrolled ? setJoinCourseDialog(true) : null)}
         >
-          Submit
+          {!enrolled ? "Join Course" : "Submit"}
         </Button>
       </div>,
     )
 
     return () => setFooterSlot(null)
-  }, [isStudent, setFooterSlot])
+  }, [isStudent, assignment?.isEnrolled, setFooterSlot])
 
   useEffect(() => {
     if (lightboxIndex === null || !attachments.length) return
@@ -183,6 +200,7 @@ function RouteComponent() {
     course,
     description,
     dueAt,
+    isEnrolled,
     maxScore,
     status,
     teacher,
@@ -203,6 +221,22 @@ function RouteComponent() {
   const { initials } = getInitials(`${teacher.firstName} ${teacher.lastName}`)
 
   const dueLabel = getDueLabel(dueAt)
+
+  const handleJoinCourse = async () => {
+    try {
+      toast.loading("Joining course...", { id: "join-course" })
+      await enrollInCourse({
+        data: { courseId: course.id },
+      })
+      toast.success("Successfully joined course", { id: "join-course" })
+      queryClient.invalidateQueries({ queryKey: ["assignments", assignmentId] })
+    } catch (err) {
+      toast.error("Failed to join course, please try again.", {
+        id: "join-course",
+      })
+      console.log(err)
+    }
+  }
 
   return (
     <>
@@ -429,6 +463,28 @@ function RouteComponent() {
             {lightboxIndex + 1} / {attachments.length}
           </span>
         </div>
+      )}
+
+      {isStudent && !isEnrolled && (
+        <AlertDialog open={joinCourseDialog} onOpenChange={setJoinCourseDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Join {course.name} to view this assignment
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This assignment is part of {course.name}. Join the course to
+                access it and all future assignments from this course.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction className="px-3" onClick={handleJoinCourse}>
+                Join Course
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   )

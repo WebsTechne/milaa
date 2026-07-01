@@ -1,4 +1,7 @@
-import { getStudentAssignments } from "#/server/assignments"
+import {
+  getAssignmentByCode,
+  getStudentAssignments,
+} from "#/server/assignments"
 import { useQuery } from "@tanstack/react-query"
 import { AssignmentCardSkeleton, AssignmentCard } from "./teacher-card"
 import { authClient } from "#/lib/auth-client"
@@ -8,8 +11,13 @@ import { useState } from "react"
 import { useHeaderStore } from "#/lib/store"
 import { Link, useParams, useRouterState } from "@tanstack/react-router"
 import { Spinner } from "../ui/spinner"
-import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
-import { IconSearch } from "@tabler/icons-react"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "../ui/input-group"
+import { IconSearch, IconX } from "@tabler/icons-react"
 
 function StudentAssignmentsPage() {
   const routerState = useRouterState()
@@ -18,10 +26,26 @@ function StudentAssignmentsPage() {
 
   const setTitleSlot = useHeaderStore((s) => s.setTitleSlot)
 
+  const [searchCode, setSearchCode] = useState("")
+  const [submittedCode, setSubmittedCode] = useState("")
+
+  const { data: searchResult, isFetching: searchFetching } = useQuery({
+    queryKey: ["assignments", "code", submittedCode],
+    queryFn: () => getAssignmentByCode({ data: { code: submittedCode } }),
+    enabled: !!submittedCode,
+  })
+
   const { data: assignments = [], isPending } = useQuery({
     queryKey: ["assignments", "list"],
     queryFn: () => getStudentAssignments(),
   })
+
+  const displayedAssignments =
+    submittedCode && submittedCode === searchCode
+      ? searchResult
+        ? [searchResult]
+        : []
+      : assignments
 
   if (authPending)
     return (
@@ -59,36 +83,78 @@ function StudentAssignmentsPage() {
   return (
     <>
       <section className="mt-4">
-        <form className="flex-between mx-auto w-full max-w-2xl gap-4">
+        <form
+          className="flex-between mx-auto w-full max-w-2xl gap-2"
+          onSubmit={(e) => {
+            e.preventDefault()
+            setSubmittedCode(searchCode.trim())
+          }}
+        >
           <InputGroup className="h-10">
             <InputGroupAddon>
               <IconSearch />
             </InputGroupAddon>
-            <InputGroupInput placeholder="Assignment Code" />
+            <InputGroupInput
+              placeholder="Assignment Code"
+              value={searchCode}
+              onChange={(e) => setSearchCode(e.target.value)}
+              onPaste={(e) => {
+                const pasted = e.clipboardData.getData("text").trim()
+                if (pasted) {
+                  setSearchCode(pasted)
+                  setSubmittedCode(pasted)
+                }
+              }}
+            />
+            {searchCode && (
+              <InputGroupButton
+                onClick={() => {
+                  setSearchCode("")
+                  setSubmittedCode("")
+                }}
+              >
+                <IconX />
+              </InputGroupButton>
+            )}
           </InputGroup>
-          <Button className="h-10 px-4">Search</Button>
+          <Button
+            type="submit"
+            className="h-10 px-4"
+            disabled={searchFetching || !searchCode}
+          >
+            {submittedCode && searchFetching ? "Searching..." : "Search"}
+          </Button>
         </form>
       </section>
 
       <section className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {isPending ? (
-          Array.from({ length: 3 }).map((_, i) => (
+          Array.from({ length: 2 }).map((_, i) => (
             <AssignmentCardSkeleton key={i} />
           ))
-        ) : assignments.length < 1 ? (
+        ) : submittedCode && searchFetching ? (
+          <AssignmentCardSkeleton />
+        ) : submittedCode &&
+          submittedCode === searchCode &&
+          !searchFetching &&
+          !searchResult ? (
+          <div className="flex flex-col items-center rounded-xl border border-dashed bg-transparent p-4 shadow-none">
+            <p className="py-6 text-center">
+              This assignment doesn&apos;t exist or it has been deleted.
+            </p>
+          </div>
+        ) : displayedAssignments.length < 1 ? (
           <div className="flex flex-col items-center rounded-xl border border-dashed bg-transparent p-4 shadow-none">
             <p className="py-4 text-center">No assignments found.</p>
           </div>
         ) : (
-          <>
-            {assignments.map((assignment) => (
-              <AssignmentCard
-                key={assignment.id}
-                assignment={assignment}
-                session={session}
-              />
-            ))}
-          </>
+          displayedAssignments.map((assignment) => (
+            <AssignmentCard
+              key={assignment.id}
+              assignment={assignment}
+              session={session}
+            />
+          ))
         )}
       </section>
     </>
