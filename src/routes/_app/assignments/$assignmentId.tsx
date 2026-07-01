@@ -401,7 +401,8 @@ function RouteComponent() {
             ASSIGNMENT CODE
           </h3>
 
-          <div className="max-w-120">
+          <div className="">
+            {/* max-w-120 */}
             <InputGroup className="bg-muted h-11 dark:bg-black/60!">
               <InputGroupInput readOnly value={assignmentCode} />
               <InputGroupAddon align="block-end">
