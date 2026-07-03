@@ -3,18 +3,41 @@ import { prisma } from "#/db"
 import { getSession } from "#/lib/auth-session"
 
 const createCourse = createServerFn({ method: "POST" })
-  .validator((data: { code: string; name: string }) => data)
+  .validator(
+    (data: { code: string; name: string; description?: string }) => data,
+  )
   .handler(async ({ data }) => {
     const session = await getSession()
     if (!session) throw new Error("Unauthorized")
 
     try {
       const course = await prisma.course.create({
-        data: { code: data.code, name: data.name, teacherId: session.user.id },
+        data: {
+          code: data.code,
+          name: data.name,
+          description: data.description,
+          teacherId: session.user.id,
+        },
       })
       return course
     } catch (err) {
       console.error("❌ createCourse error:", err)
+      throw err
+    }
+  })
+
+const deleteCourse = createServerFn({ method: "POST" })
+  .validator((data: { courseId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+    const { courseId } = data
+
+    try {
+      await prisma.course.delete({ where: { id: courseId } })
+      return
+    } catch (err) {
+      console.error("❌ deleteCourse error:", err)
       throw err
     }
   })
@@ -52,4 +75,68 @@ const enrollInCourse = createServerFn({ method: "POST" })
     }
   })
 
-export { createCourse, getCourses, enrollInCourse }
+const getStudentEnrollments = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    const enrollments = await prisma.enrollment.findMany({
+      where: {
+        studentId: session.user.id,
+      },
+      select: {
+        id: true,
+        course: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            description: true,
+            teacher: {
+              select: { firstName: true, lastName: true, image: true },
+            },
+            _count: { select: { assignments: true } },
+          },
+        },
+      },
+      orderBy: { course: { name: "asc" } },
+    })
+
+    return enrollments
+  },
+)
+
+const getTeacherCourses = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    const courses = await prisma.course.findMany({
+      where: {
+        teacherId: session.user.id,
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        description: true,
+        teacher: {
+          select: { id: true, firstName: true, lastName: true, image: true },
+        },
+        _count: { select: { assignments: true, enrollments: true } },
+      },
+      orderBy: { name: "asc" },
+    })
+
+    return courses
+  },
+)
+
+export {
+  createCourse,
+  deleteCourse,
+  getCourses,
+  getStudentEnrollments,
+  getTeacherCourses,
+  enrollInCourse,
+}

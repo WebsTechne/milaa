@@ -1,31 +1,30 @@
-import { getTeacherAssignments } from "#/server/assignments"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { AssignmentCard, AssignmentCardSkeleton } from "./assignment-card"
+import { useQuery } from "@tanstack/react-query"
 import { authClient } from "#/lib/auth-client"
 import { Button } from "../ui/button"
 
 import { useState } from "react"
-import { NewAssignmentSheet } from "./new-course"
-import { IconPlus } from "@tabler/icons-react"
 import { useHeaderStore } from "#/lib/store"
-import { Link, useRouterState } from "@tanstack/react-router"
+import { Link, useParams, useRouterState } from "@tanstack/react-router"
 import { Spinner } from "../ui/spinner"
+import { getTeacherCourses } from "#/server/courses"
+import { CourseCard } from "./course-card"
+import { IconPlus } from "@tabler/icons-react"
+import { NewCourseSheet } from "./new-course"
 
 function TeacherCoursesPage() {
   const routerState = useRouterState()
 
   const { data: session, isPending: authPending } = authClient.useSession()
-  const queryClient = useQueryClient()
-  const [newOpen, setNewOpen] = useState<boolean>(false)
+  const [newOpen, setNewOpen] = useState(false)
 
   const setTitleSlot = useHeaderStore((s) => s.setTitleSlot)
 
-  const { data: assignments = [], isPending } = useQuery({
-    queryKey: ["assignments", "list"],
-    queryFn: () => getTeacherAssignments(),
+  const { data: courses = [], isPending } = useQuery({
+    queryKey: ["courses", "list"],
+    queryFn: () => getTeacherCourses(),
   })
 
-  if (authPending)
+  if (authPending || (!!session && isPending))
     return (
       <div className="flex-center h-[calc(100dvh-16px-48px)]">
         <Spinner className="size-7" />
@@ -58,29 +57,38 @@ function TeacherCoursesPage() {
     )
   }
 
+  if (courses.length === 0) {
+    return (
+      <div className="flex-center h-[calc(100dvh-48px-56px)] px-5">
+        <div>
+          <h1 className="font-heading mb-2 text-4xl font-bold">
+            No courses yet
+          </h1>
+          <p className="text-muted-foreground max-w-prose text-base md:text-lg">
+            You haven't created any courses yet. Create a course to get started
+            — students can join by submitting an assignment code.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
-      <section className="my-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {isPending ? (
-          Array.from({ length: 2 }).map((_, i) => (
-            <AssignmentCardSkeleton key={i} />
-          ))
-        ) : assignments.length < 1 ? (
-          <div className="flex flex-col items-center rounded-xl border border-dashed bg-transparent p-4 shadow-none">
-            <p className="py-4 text-center">No assignments found.</p>
-            <Button onClick={() => setNewOpen(true)}>Create assignment</Button>
-          </div>
-        ) : (
-          <>
-            {assignments.map((assignment) => (
-              <AssignmentCard
-                key={assignment.id}
-                assignment={assignment}
-                session={session}
-              />
-            ))}
-          </>
-        )}
+      <section className="mt-4">
+        <p>
+          {courses.length} course{courses.length !== 1 ? "s" : ""}
+        </p>
+      </section>
+
+      <section className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        {courses.map((course) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            userId={session.user.id}
+          />
+        ))}
       </section>
 
       <Button
@@ -91,8 +99,9 @@ function TeacherCoursesPage() {
         <IconPlus strokeWidth={2.5} className="size-6!" />
       </Button>
 
-      <NewAssignmentSheet open={newOpen} onOpenChange={setNewOpen} />
+      <NewCourseSheet open={newOpen} onOpenChange={setNewOpen} />
     </>
   )
 }
+
 export { TeacherCoursesPage }

@@ -81,7 +81,7 @@ export function NewAssignmentSheet({
 }) {
   const queryClient = useQueryClient()
   const { data: courses = [], isPending: isPendingCourses } = useQuery({
-    queryKey: ["courses"],
+    queryKey: ["courses", "dropdown"],
     queryFn: getCourses,
   })
 
@@ -466,7 +466,7 @@ export function NewAssignmentSheet({
                       field.state.meta.isTouched && !field.state.meta.isValid
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Max score</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Max Score</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}

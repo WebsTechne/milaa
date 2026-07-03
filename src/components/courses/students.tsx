@@ -1,19 +1,10 @@
-import {
-  getAssignmentByCode,
-  getStudentAssignments,
-} from "#/server/assignments"
 import { useQuery } from "@tanstack/react-query"
 import { authClient } from "#/lib/auth-client"
-import { Button } from "../ui/button"
-
-import { useState } from "react"
 import { useHeaderStore } from "#/lib/store"
 import { Link, useParams, useRouterState } from "@tanstack/react-router"
 import { Spinner } from "../ui/spinner"
-import { getStudentEnrollments } from "#/server/enrollments"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar"
-import getInitials from "#/lib/name"
+import { getStudentEnrollments } from "#/server/courses"
+import { CourseCard } from "./course-card"
 
 function StudentCoursesPage() {
   const routerState = useRouterState()
@@ -61,6 +52,8 @@ function StudentCoursesPage() {
   }
 
   if (enrollments.length === 0) {
+    setTitleSlot("Courses")
+
     return (
       <div className="flex-center h-[calc(100dvh-48px-56px)] px-5">
         <div>
@@ -85,44 +78,9 @@ function StudentCoursesPage() {
       </section>
 
       <section className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {enrollments.map(({ id, course }) => {
-          const { initials } = getInitials(
-            `${course.teacher.firstName} ${course.teacher.lastName}`,
-          )
-
-          return (
-            <Link
-              key={id}
-              to="/courses/$courseId"
-              params={{ courseId: course.id }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>{course.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {course.description ?? (
-                    <span className="text-muted-foreground">
-                      No description
-                    </span>
-                  )}
-                </CardContent>
-                <div className="flex items-center gap-2 px-4">
-                  <Avatar className="size-7">
-                    {course.teacher.image && (
-                      <AvatarImage
-                        src={course.teacher.image}
-                        alt={`${course.teacher.firstName} ${course.teacher.lastName}`}
-                      />
-                    )}
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">{`${course.teacher.firstName} ${course.teacher.lastName}`}</span>
-                </div>
-              </Card>
-            </Link>
-          )
-        })}
+        {enrollments.map(({ id, course }) => (
+          <CourseCard key={id} course={course} userId={session.user.id} />
+        ))}
       </section>
     </>
   )
