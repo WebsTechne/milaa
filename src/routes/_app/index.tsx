@@ -15,5 +15,5 @@ function App() {
     }
   }, [setTitleSlot])
 
-  return <section>Overview Page...</section>
+  return <section>Go to the assignments page.</section>
 }

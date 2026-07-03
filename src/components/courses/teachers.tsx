@@ -5,13 +5,13 @@ import { authClient } from "#/lib/auth-client"
 import { Button } from "../ui/button"
 
 import { useState } from "react"
-import { NewAssignmentSheet } from "./new-assignment"
+import { NewAssignmentSheet } from "./new-course"
 import { IconPlus } from "@tabler/icons-react"
 import { useHeaderStore } from "#/lib/store"
 import { Link, useRouterState } from "@tanstack/react-router"
 import { Spinner } from "../ui/spinner"
 
-function TeacherAssignmentsPage() {
+function TeacherCoursesPage() {
   const routerState = useRouterState()
 
   const { data: session, isPending: authPending } = authClient.useSession()
@@ -95,4 +95,4 @@ function TeacherAssignmentsPage() {
     </>
   )
 }
-export { TeacherAssignmentsPage }
+export { TeacherCoursesPage }

@@ -3,7 +3,7 @@ import {
   getStudentAssignments,
 } from "#/server/assignments"
 import { useQuery } from "@tanstack/react-query"
-import { AssignmentCardSkeleton, AssignmentCard } from "./teacher-card"
+import { AssignmentCardSkeleton, AssignmentCard } from "./assignment-card"
 import { authClient } from "#/lib/auth-client"
 import { Button } from "../ui/button"
 

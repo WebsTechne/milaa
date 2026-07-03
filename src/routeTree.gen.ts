@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
+import { Route as AppCoursesIndexRouteImport } from './routes/_app/courses/index'
 import { Route as AppAssignmentsIndexRouteImport } from './routes/_app/assignments/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AppCoursesCourseIdRouteImport } from './routes/_app/courses/$courseId'
@@ -49,6 +50,11 @@ const AuthSignInIndexRoute = AuthSignInIndexRouteImport.update({
   path: '/sign-in/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AppCoursesIndexRoute = AppCoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppAssignmentsIndexRoute = AppAssignmentsIndexRouteImport.update({
   id: '/assignments/',
   path: '/assignments/',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId': typeof AppCoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments/': typeof AppAssignmentsIndexRoute
+  '/courses/': typeof AppCoursesIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/courses/$courseId': typeof AppCoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments': typeof AppAssignmentsIndexRoute
+  '/courses': typeof AppCoursesIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
 }
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_app/courses/$courseId': typeof AppCoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_app/assignments/': typeof AppAssignmentsIndexRoute
+  '/_app/courses/': typeof AppCoursesIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/api/auth/$'
     | '/assignments/'
+    | '/courses/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/api/auth/$'
     | '/assignments'
+    | '/courses'
     | '/auth/sign-in'
     | '/auth/sign-up'
   id:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_app/courses/$courseId'
     | '/api/auth/$'
     | '/_app/assignments/'
+    | '/_app/courses/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
   fileRoutesById: FileRoutesById
@@ -193,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/courses/': {
+      id: '/_app/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof AppCoursesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/assignments/': {
       id: '/_app/assignments/'
       path: '/assignments'
@@ -230,6 +249,7 @@ interface AppRouteRouteChildren {
   AppAssignmentsAssignmentIdRoute: typeof AppAssignmentsAssignmentIdRoute
   AppCoursesCourseIdRoute: typeof AppCoursesCourseIdRoute
   AppAssignmentsIndexRoute: typeof AppAssignmentsIndexRoute
+  AppCoursesIndexRoute: typeof AppCoursesIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -238,6 +258,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAssignmentsAssignmentIdRoute: AppAssignmentsAssignmentIdRoute,
   AppCoursesCourseIdRoute: AppCoursesCourseIdRoute,
   AppAssignmentsIndexRoute: AppAssignmentsIndexRoute,
+  AppCoursesIndexRoute: AppCoursesIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
