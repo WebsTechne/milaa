@@ -78,7 +78,8 @@ function AssignmentPage() {
   const isStudent = !!session && teacherID !== session.user.id
 
   useEffect(() => {
-    if (!isStudent) {
+		if (authPending) return
+		if (!isStudent) {
       setFooterSlot(null)
       return
     }
@@ -99,7 +100,7 @@ function AssignmentPage() {
     )
 
     return () => setFooterSlot(null)
-  }, [isStudent, assignment?.isEnrolled, setFooterSlot])
+  }, [authPending, isStudent, assignment?.isEnrolled, setFooterSlot])
 
   useEffect(() => {
     if (lightboxIndex === null || !attachments.length) return
