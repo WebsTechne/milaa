@@ -297,8 +297,11 @@ export function NewAssignmentSheet({
         </AlertDialogContent>
       </AlertDialog>
 
-      <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-        <SheetContent className="w-full! max-w-lg! gap-0!">
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          className="w-full! max-w-lg! gap-0!"
+          showCloseButton={false}
+        >
           <SheetHeader>
             <SheetTitle>Create Assignment</SheetTitle>
             <SheetDescription>

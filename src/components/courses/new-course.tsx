@@ -82,8 +82,11 @@ export function NewCourseSheet({
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange} modal={true}>
-        <SheetContent className="w-full! max-w-lg! gap-0!">
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          className="w-full! max-w-lg! gap-0!"
+          showCloseButton={false}
+        >
           <SheetHeader>
             <SheetTitle>Create Course</SheetTitle>
             <SheetDescription>

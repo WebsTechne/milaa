@@ -46,10 +46,10 @@ import {
 import { enrollInCourse } from "#/server/courses"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
-  component: RouteComponent,
+  component: AssignmentPage,
 })
 
-function RouteComponent() {
+function AssignmentPage() {
   const routerState = useRouterState()
   const queryClient = useQueryClient()
 

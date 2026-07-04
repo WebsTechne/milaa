@@ -56,6 +56,47 @@ const getCourses = createServerFn({ method: "GET" }).handler(async () => {
   }
 })
 
+const getCourseById = createServerFn({ method: "GET" })
+  .validator((data: { courseId: string }) => data)
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    const { courseId: id } = data
+
+    try {
+      const course = await prisma.course.findFirst({
+        where: { id },
+        select: {
+          code: true,
+          name: true,
+          description: true,
+          teacher: { select: { firstName: true, lastName: true, image: true } },
+          assignments: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              dueAt: true,
+              maxScore: true,
+              course: { select: { name: true } },
+              teacher: { select: { id: true } },
+              assignmentCode: true,
+            },
+          },
+
+          _count: {
+            select: { assignments: true, enrollments: true },
+          },
+        },
+      })
+      return course
+    } catch (err) {
+      console.error("❌ getCourses error:", err)
+      throw err
+    }
+  })
+
 const enrollInCourse = createServerFn({ method: "POST" })
   .validator((data: { courseId: string }) => data)
   .handler(async ({ data }) => {
@@ -136,6 +177,7 @@ export {
   createCourse,
   deleteCourse,
   getCourses,
+  getCourseById,
   getStudentEnrollments,
   getTeacherCourses,
   enrollInCourse,
