@@ -37,7 +37,7 @@ function CoursePage() {
     enabled: !!session && !authPending,
   })
 
-  if (authPending)
+  if (authPending || (!!session && isPending))
     return (
       <div className="flex-center h-[calc(100dvh-16px-48px)]">
         <Spinner className="size-7" />
@@ -97,7 +97,7 @@ function CoursePage() {
 
   setTitleSlot(course.description)
 
-  const { code, name, description, teacher, assignments, _count } = course
+  const { name, description, teacher, assignments, _count } = course
 
   const { initials } = getInitials(`${teacher.firstName} ${teacher.lastName}`)
 
@@ -111,7 +111,7 @@ function CoursePage() {
           <h1 className="font-heading text-lg font-bold duration-200 sm:text-xl md:text-2xl">
             {name}
           </h1>
-          <p className="text-lg">{description}</p>
+          <p className="sm:text-lg">{description}</p>
         </div>
 
         <div className="flex items-center gap-1.5 text-sm">
@@ -149,11 +149,7 @@ function CoursePage() {
         </h3>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-          {isPending ? (
-            Array.from({ length: 2 }).map((_, i) => (
-              <AssignmentCardSkeleton key={i} />
-            ))
-          ) : assignments.length < 1 ? (
+          {assignments.length < 1 ? (
             <div className="col-span-full flex flex-col items-center rounded-xl border border-dashed bg-transparent p-4 shadow-none">
               <p className="py-4 text-center">No assignments yet.</p>
               {isTeacher && (
