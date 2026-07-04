@@ -71,7 +71,7 @@ const getCourseById = createServerFn({ method: "GET" })
           code: true,
           name: true,
           description: true,
-          teacher: { select: { firstName: true, lastName: true, image: true } },
+          teacher: { select: { id:true,firstName: true, lastName: true, image: true } },
           assignments: {
             select: {
               id: true,
