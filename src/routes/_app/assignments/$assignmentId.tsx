@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
 } from "#/components/ui/alert-dialog"
 import { enrollInCourse } from "#/server/courses"
+import { SubmitPanel } from "#/components/assignments/submit-panel"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: AssignmentPage,
@@ -56,6 +57,7 @@ function AssignmentPage() {
   const [isCopying, setIsCopying] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [joinCourseDialog, setJoinCourseDialog] = useState(false)
+  const [submitOpen, setSubmitOpen] = useState(false)
 
   const { data: session, isPending: authPending } = authClient.useSession()
 
@@ -75,11 +77,11 @@ function AssignmentPage() {
   })
 
   const teacherID = assignment?.teacherId
-  const isStudent = !!session && teacherID !== session.user.id
+  const isStudent = !!session && !!assignment && teacherID !== session.user.id
 
   useEffect(() => {
-		if (authPending) return
-		if (!isStudent) {
+    if (authPending) return
+    if (!isStudent) {
       setFooterSlot(null)
       return
     }
@@ -92,7 +94,9 @@ function AssignmentPage() {
         <Button
           size="lg"
           className="hover:bg-primary! pointer-events-auto h-11 w-9/10 max-w-90 shadow-(--shadow-sm)"
-          onClick={() => (!enrolled ? setJoinCourseDialog(true) : null)}
+          onClick={() =>
+            !enrolled ? setJoinCourseDialog(true) : setSubmitOpen(true)
+          }
         >
           {!enrolled ? "Join Course" : "Submit"}
         </Button>
@@ -488,6 +492,12 @@ function AssignmentPage() {
           </AlertDialogContent>
         </AlertDialog>
       )}
+
+      <SubmitPanel
+        open={submitOpen}
+        onOpenChange={setSubmitOpen}
+        format={allowedFormats}
+      />
     </>
   )
 }

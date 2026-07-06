@@ -386,6 +386,7 @@ export function NewAssignmentSheet({
                       </FieldLabel>
                       <DropZone
                         onFiles={(files) => field.handleChange(files)}
+                        format={["IMAGE"]}
                         multiple
                       />
                     </Field>

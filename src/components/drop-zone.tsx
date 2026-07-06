@@ -4,6 +4,14 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area"
 import { Button } from "./ui/button"
 import { toast } from "sonner"
 import { IconChevronLeft, IconChevronRight, IconX } from "@tabler/icons-react"
+import type { SubmissionFormat } from "#/generated/prisma/enums"
+
+const acceptMap: Record<SubmissionFormat, string> = {
+  IMAGE: "image/*",
+  PDF: "application/pdf",
+  DOCUMENT:
+    ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
 
 function DropZone({
   onFiles,
@@ -11,12 +19,14 @@ function DropZone({
   preview,
   multiple = false,
   startIndex = 0,
+  format,
 }: {
   onFiles: (files: File[]) => void
   onClear?: () => void
   preview?: File
   multiple?: boolean
   startIndex?: number
+  format: SubmissionFormat[]
 }) {
   const inputId = useId()
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -25,6 +35,10 @@ function DropZone({
 
   const HARD_LIMIT_MB = 20
   const HARD_LIMIT_BYTES = HARD_LIMIT_MB * 1024 * 1024
+
+  const accept = format.map((f) => acceptMap[f]).join(",")
+  const imagesAllowed = format.includes("IMAGE")
+  const nonImageAllowed = format.some((f) => f !== "IMAGE")
 
   const previewUrl = useMemo(
     () => (preview ? URL.createObjectURL(preview) : null),
@@ -198,14 +212,14 @@ function DropZone({
           {multiple
             ? files.length > 0
               ? `${files.length} file${files.length > 1 ? "s" : ""} selected — drop more or click to add`
-              : "Drop images here or click to browse"
-            : "Drop image here or click to browse"}
+              : `Drop ${imagesAllowed ? "images" : "files"} here or click to browse`
+            : `Drop ${imagesAllowed ? "image" : "file"} here or click to browse`}
         </p>
         <input
           id={inputId}
           type="file"
           multiple={multiple}
-          accept="image/*"
+          accept={accept}
           className="hidden"
           onChange={(e) => addFiles(Array.from(e.target.files ?? []))}
         />

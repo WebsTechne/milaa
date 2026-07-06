@@ -390,6 +390,7 @@ function SignupPage() {
                           onFiles={(files) => field.handleChange(files[0])}
                           onClear={() => field.handleChange(undefined)}
                           preview={field.state.value}
+                          format={["IMAGE"]}
                         />
                         <FieldDescription>
                           Optional. Use a clear photo of yourself. Lecturers may
