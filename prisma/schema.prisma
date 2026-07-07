@@ -158,6 +158,7 @@ model Submission {
   student      User             @relation(fields: [studentId], references: [id])
 
   attachments SubmissionAttachment[]
+  note        String?
 
   @@unique([assignmentId, studentId])
   @@index([studentId])

@@ -9,8 +9,15 @@ import type { SubmissionFormat } from "#/generated/prisma/enums"
 const acceptMap: Record<SubmissionFormat, string> = {
   IMAGE: "image/*",
   PDF: "application/pdf",
-  DOCUMENT:
-    ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  DOCUMENT: [
+    ".doc,.docx", // Word
+    ".pdf", // PDF (if not already in PDF format)
+    ".txt", // Plain text
+    ".zip,.rar", // Archives (source code bundles)
+    ".html,.css,.js,.ts", // Web files
+    ".java,.py,.c,.cpp,.cs", // Common languages
+    ".ipynb", // Jupyter notebooks
+  ].join(","),
 }
 
 function DropZone({
@@ -51,21 +58,13 @@ function DropZone({
   )
 
   const addFiles = (incoming: File[]) => {
-    const imageFiles = incoming.filter(
-      (f) => f.type.startsWith("image/") && f.type !== "image/svg+xml",
-    )
-
-    const wayTooLarge = imageFiles.filter((f) => f.size > HARD_LIMIT_BYTES)
-    const validFiles = imageFiles.filter((f) => f.size <= HARD_LIMIT_BYTES)
+    const wayTooLarge = incoming.filter((f) => f.size > HARD_LIMIT_BYTES)
+    const validFiles = incoming.filter((f) => f.size <= HARD_LIMIT_BYTES)
 
     if (wayTooLarge.length > 0)
       toast.warning(
-        `${wayTooLarge.length} file${wayTooLarge.length > 1 ? "s" : ""} skipped — max size is ${HARD_LIMIT_MB}MB per image`,
+        `${wayTooLarge.length} file${wayTooLarge.length > 1 ? "s" : ""} skipped — max size is ${HARD_LIMIT_MB}MB per file`,
       )
-
-    if (imageFiles.length !== incoming.length) {
-      toast.warning("Only image files are accepted")
-    }
 
     if (validFiles.length === 0) return
 
@@ -108,18 +107,27 @@ function DropZone({
       {multiple && files.length > 0 && (
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex cursor-pointer gap-4">
-            {files.map((_file, i) => (
+            {files.map((file, i) => (
               <div
                 key={fileUrls[i]}
                 className="relative h-40 w-max shrink-0"
                 onClick={() => setLightboxIndex(i)}
               >
-                <img
-                  src={fileUrls[i]}
-                  alt={`page ${i + 1}`}
-                  className="h-full w-auto rounded-lg object-cover"
-                  draggable={false}
-                />
+                {file.type.startsWith("image/") ? (
+                  <img
+                    src={fileUrls[i]}
+                    alt={`file ${i + 1}`}
+                    className="h-full w-auto rounded-lg object-cover"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="bg-muted flex h-full max-w-40 min-w-32 flex-col items-center justify-center gap-1 rounded-lg border p-2">
+                    <span className="text-muted-foreground w-full truncate text-center text-xs">
+                      {file.name}
+                    </span>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={(e) => {
@@ -141,52 +149,53 @@ function DropZone({
       )}
 
       {/* Lightbox */}
-      {lightboxIndex !== null && (
-        <div
-          className="fixed top-1/2 left-1/2 z-9999 flex h-dvh w-dvw -translate-1/2 items-center justify-center bg-black/80"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <img
-            src={multiple ? fileUrls[lightboxIndex] : previewUrl!}
-            alt={`page ${lightboxIndex + 1}`}
-            className="max-h-[90dvh] max-w-[90dvw] rounded-lg object-contain"
-            onClick={(e) => e.stopPropagation()}
-            draggable={false}
-          />
-          {/* prev/next */}
-          {multiple && (
-            <Button
-              variant="secondary"
-              size="icon"
-              className="fixed top-1/2 left-1 -translate-y-1/2 disabled:pointer-events-auto! md:left-4"
-              disabled={!(lightboxIndex > 0)}
-              onClick={(e) => {
-                e.stopPropagation()
-                setLightboxIndex(lightboxIndex - 1)
-              }}
-            >
-              <IconChevronLeft className="size-5!" strokeWidth={2} />
-            </Button>
-          )}
-          {multiple && (
-            <Button
-              variant="secondary"
-              size="icon"
-              className="fixed top-1/2 right-1 -translate-y-1/2 disabled:pointer-events-auto! md:right-4"
-              disabled={!(lightboxIndex < files.length - 1)}
-              onClick={(e) => {
-                e.stopPropagation()
-                setLightboxIndex(lightboxIndex + 1)
-              }}
-            >
-              <IconChevronRight className="size-5!" strokeWidth={2} />
-            </Button>
-          )}
-          <span className="fixed bottom-4 text-sm text-white">
-            {lightboxIndex + 1} / {files.length}
-          </span>
-        </div>
-      )}
+      {lightboxIndex !== null &&
+        files[lightboxIndex]?.type.startsWith("image/") && (
+          <div
+            className="fixed top-1/2 left-1/2 z-9999 flex h-dvh w-dvw -translate-1/2 items-center justify-center bg-black/80"
+            onClick={() => setLightboxIndex(null)}
+          >
+            <img
+              src={multiple ? fileUrls[lightboxIndex] : previewUrl!}
+              alt={`page ${lightboxIndex + 1}`}
+              className="max-h-[90dvh] max-w-[90dvw] rounded-lg object-contain"
+              onClick={(e) => e.stopPropagation()}
+              draggable={false}
+            />
+            {/* prev/next */}
+            {multiple && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="fixed top-1/2 left-1 -translate-y-1/2 disabled:pointer-events-auto! md:left-4"
+                disabled={!(lightboxIndex > 0)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxIndex(lightboxIndex - 1)
+                }}
+              >
+                <IconChevronLeft className="size-5!" strokeWidth={2} />
+              </Button>
+            )}
+            {multiple && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="fixed top-1/2 right-1 -translate-y-1/2 disabled:pointer-events-auto! md:right-4"
+                disabled={!(lightboxIndex < files.length - 1)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxIndex(lightboxIndex + 1)
+                }}
+              >
+                <IconChevronRight className="size-5!" strokeWidth={2} />
+              </Button>
+            )}
+            <span className="fixed bottom-4 text-sm text-white">
+              {lightboxIndex + 1} / {files.length}
+            </span>
+          </div>
+        )}
 
       {/* Drop Zone */}
       <div
@@ -212,8 +221,8 @@ function DropZone({
           {multiple
             ? files.length > 0
               ? `${files.length} file${files.length > 1 ? "s" : ""} selected — drop more or click to add`
-              : `Drop ${imagesAllowed ? "images" : "files"} here or click to browse`
-            : `Drop ${imagesAllowed ? "image" : "file"} here or click to browse`}
+              : `Drop ${imagesAllowed ? "images or files" : "files"} here or click to browse`
+            : `Drop ${imagesAllowed ? "an image or file" : "a file"} here or click to browse`}
         </p>
         <input
           id={inputId}

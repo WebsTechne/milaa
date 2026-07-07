@@ -1388,7 +1388,8 @@ export const SubmissionScalarFieldEnum = {
   grade: 'grade',
   feedback: 'feedback',
   submittedAt: 'submittedAt',
-  status: 'status'
+  status: 'status',
+  note: 'note'
 } as const
 
 export type SubmissionScalarFieldEnum = (typeof SubmissionScalarFieldEnum)[keyof typeof SubmissionScalarFieldEnum]

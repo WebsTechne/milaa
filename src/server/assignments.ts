@@ -61,7 +61,10 @@ const getAssignmentByCode = createServerFn({ method: "GET" })
         },
       })
       return assignments
-    } catch (err) {}
+    } catch (err) {
+      console.error("❌ getAssignmentByCode error:", err)
+      throw err
+    }
   })
 
 const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
@@ -85,7 +88,10 @@ const getTeacherAssignments = createServerFn({ method: "GET" }).handler(
         orderBy: { createdAt: "desc" },
       })
       return assignments
-    } catch (err) {}
+    } catch (err) {
+      console.error("❌ getTeacherAssignments error:", err)
+      throw err
+    }
   },
 )
 type AssignmentListData = Prisma.AssignmentGetPayload<{
@@ -124,7 +130,10 @@ const getStudentAssignments = createServerFn({ method: "GET" }).handler(
         orderBy: { dueAt: "asc" },
       })
       return assignments
-    } catch (err) {}
+    } catch (err) {
+      console.error("❌ getStudentAssignments error:", err)
+      throw err
+    }
   },
 )
 
@@ -165,7 +174,8 @@ const createAssignment = createServerFn({ method: "POST" })
 
       return assignment
     } catch (err) {
-      throw new Error(err)
+      console.error("❌ createAssignment error:", err)
+      throw err
     }
   })
 

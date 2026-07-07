@@ -86,7 +86,7 @@ function AssignmentPage() {
       return
     }
 
-    const enrolled = assignment?.isEnrolled
+    const enrolled = assignment.isEnrolled
     if (!enrolled) setJoinCourseDialog(true)
 
     setFooterSlot(
@@ -497,6 +497,7 @@ function AssignmentPage() {
         open={submitOpen}
         onOpenChange={setSubmitOpen}
         format={allowedFormats}
+        assignmentId={assignmentId}
       />
     </>
   )

@@ -148,11 +148,6 @@ export function NewAssignmentSheet({
         images,
       } = value
 
-      // if (!description.trim() && images.length === 0) {
-      //   setError("Provide a description or at least one attachment.")
-      //   return
-      // }
-
       setError("")
       let assignmentId: string | undefined
       if (!selectedCourse || !dueAt) return
@@ -689,12 +684,7 @@ export function NewAssignmentSheet({
               type="button"
               className="h-10"
               disabled={form.state.isSubmitting}
-              onClick={() => {
-                console.log(form.state.values)
-                console.log(form.state.errors)
-                console.log(form.state.errorMap)
-                form.handleSubmit()
-              }}
+              onClick={() => form.handleSubmit()}
             >
               {form.state.isSubmitting ? (
                 <>

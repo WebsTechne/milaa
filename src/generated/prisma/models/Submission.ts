@@ -42,6 +42,7 @@ export type SubmissionMinAggregateOutputType = {
   feedback: string | null
   submittedAt: Date | null
   status: $Enums.SubmissionStatus | null
+  note: string | null
 }
 
 export type SubmissionMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type SubmissionMaxAggregateOutputType = {
   feedback: string | null
   submittedAt: Date | null
   status: $Enums.SubmissionStatus | null
+  note: string | null
 }
 
 export type SubmissionCountAggregateOutputType = {
@@ -62,6 +64,7 @@ export type SubmissionCountAggregateOutputType = {
   feedback: number
   submittedAt: number
   status: number
+  note: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type SubmissionMinAggregateInputType = {
   feedback?: true
   submittedAt?: true
   status?: true
+  note?: true
 }
 
 export type SubmissionMaxAggregateInputType = {
@@ -92,6 +96,7 @@ export type SubmissionMaxAggregateInputType = {
   feedback?: true
   submittedAt?: true
   status?: true
+  note?: true
 }
 
 export type SubmissionCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type SubmissionCountAggregateInputType = {
   feedback?: true
   submittedAt?: true
   status?: true
+  note?: true
   _all?: true
 }
 
@@ -199,6 +205,7 @@ export type SubmissionGroupByOutputType = {
   feedback: string | null
   submittedAt: Date
   status: $Enums.SubmissionStatus
+  note: string | null
   _count: SubmissionCountAggregateOutputType | null
   _avg: SubmissionAvgAggregateOutputType | null
   _sum: SubmissionSumAggregateOutputType | null
@@ -232,6 +239,7 @@ export type SubmissionWhereInput = {
   feedback?: Prisma.StringNullableFilter<"Submission"> | string | null
   submittedAt?: Prisma.DateTimeFilter<"Submission"> | Date | string
   status?: Prisma.EnumSubmissionStatusFilter<"Submission"> | $Enums.SubmissionStatus
+  note?: Prisma.StringNullableFilter<"Submission"> | string | null
   assignment?: Prisma.XOR<Prisma.AssignmentScalarRelationFilter, Prisma.AssignmentWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   attachments?: Prisma.SubmissionAttachmentListRelationFilter
@@ -245,6 +253,7 @@ export type SubmissionOrderByWithRelationInput = {
   feedback?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  note?: Prisma.SortOrderInput | Prisma.SortOrder
   assignment?: Prisma.AssignmentOrderByWithRelationInput
   student?: Prisma.UserOrderByWithRelationInput
   attachments?: Prisma.SubmissionAttachmentOrderByRelationAggregateInput
@@ -262,6 +271,7 @@ export type SubmissionWhereUniqueInput = Prisma.AtLeast<{
   feedback?: Prisma.StringNullableFilter<"Submission"> | string | null
   submittedAt?: Prisma.DateTimeFilter<"Submission"> | Date | string
   status?: Prisma.EnumSubmissionStatusFilter<"Submission"> | $Enums.SubmissionStatus
+  note?: Prisma.StringNullableFilter<"Submission"> | string | null
   assignment?: Prisma.XOR<Prisma.AssignmentScalarRelationFilter, Prisma.AssignmentWhereInput>
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   attachments?: Prisma.SubmissionAttachmentListRelationFilter
@@ -275,6 +285,7 @@ export type SubmissionOrderByWithAggregationInput = {
   feedback?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  note?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SubmissionCountOrderByAggregateInput
   _avg?: Prisma.SubmissionAvgOrderByAggregateInput
   _max?: Prisma.SubmissionMaxOrderByAggregateInput
@@ -293,6 +304,7 @@ export type SubmissionScalarWhereWithAggregatesInput = {
   feedback?: Prisma.StringNullableWithAggregatesFilter<"Submission"> | string | null
   submittedAt?: Prisma.DateTimeWithAggregatesFilter<"Submission"> | Date | string
   status?: Prisma.EnumSubmissionStatusWithAggregatesFilter<"Submission"> | $Enums.SubmissionStatus
+  note?: Prisma.StringNullableWithAggregatesFilter<"Submission"> | string | null
 }
 
 export type SubmissionCreateInput = {
@@ -301,6 +313,7 @@ export type SubmissionCreateInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   assignment: Prisma.AssignmentCreateNestedOneWithoutSubmissionsInput
   student: Prisma.UserCreateNestedOneWithoutSubmissionsInput
   attachments?: Prisma.SubmissionAttachmentCreateNestedManyWithoutSubmissionInput
@@ -314,6 +327,7 @@ export type SubmissionUncheckedCreateInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedCreateNestedManyWithoutSubmissionInput
 }
 
@@ -323,6 +337,7 @@ export type SubmissionUpdateInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignment?: Prisma.AssignmentUpdateOneRequiredWithoutSubmissionsNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutSubmissionsNestedInput
   attachments?: Prisma.SubmissionAttachmentUpdateManyWithoutSubmissionNestedInput
@@ -336,6 +351,7 @@ export type SubmissionUncheckedUpdateInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedUpdateManyWithoutSubmissionNestedInput
 }
 
@@ -347,6 +363,7 @@ export type SubmissionCreateManyInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
 }
 
 export type SubmissionUpdateManyMutationInput = {
@@ -355,6 +372,7 @@ export type SubmissionUpdateManyMutationInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubmissionUncheckedUpdateManyInput = {
@@ -365,6 +383,7 @@ export type SubmissionUncheckedUpdateManyInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubmissionListRelationFilter = {
@@ -390,6 +409,7 @@ export type SubmissionCountOrderByAggregateInput = {
   feedback?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  note?: Prisma.SortOrder
 }
 
 export type SubmissionAvgOrderByAggregateInput = {
@@ -404,6 +424,7 @@ export type SubmissionMaxOrderByAggregateInput = {
   feedback?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  note?: Prisma.SortOrder
 }
 
 export type SubmissionMinOrderByAggregateInput = {
@@ -414,6 +435,7 @@ export type SubmissionMinOrderByAggregateInput = {
   feedback?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  note?: Prisma.SortOrder
 }
 
 export type SubmissionSumOrderByAggregateInput = {
@@ -541,6 +563,7 @@ export type SubmissionCreateWithoutStudentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   assignment: Prisma.AssignmentCreateNestedOneWithoutSubmissionsInput
   attachments?: Prisma.SubmissionAttachmentCreateNestedManyWithoutSubmissionInput
 }
@@ -552,6 +575,7 @@ export type SubmissionUncheckedCreateWithoutStudentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedCreateNestedManyWithoutSubmissionInput
 }
 
@@ -592,6 +616,7 @@ export type SubmissionScalarWhereInput = {
   feedback?: Prisma.StringNullableFilter<"Submission"> | string | null
   submittedAt?: Prisma.DateTimeFilter<"Submission"> | Date | string
   status?: Prisma.EnumSubmissionStatusFilter<"Submission"> | $Enums.SubmissionStatus
+  note?: Prisma.StringNullableFilter<"Submission"> | string | null
 }
 
 export type SubmissionCreateWithoutAssignmentInput = {
@@ -600,6 +625,7 @@ export type SubmissionCreateWithoutAssignmentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   student: Prisma.UserCreateNestedOneWithoutSubmissionsInput
   attachments?: Prisma.SubmissionAttachmentCreateNestedManyWithoutSubmissionInput
 }
@@ -611,6 +637,7 @@ export type SubmissionUncheckedCreateWithoutAssignmentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedCreateNestedManyWithoutSubmissionInput
 }
 
@@ -646,6 +673,7 @@ export type SubmissionCreateWithoutAttachmentsInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
   assignment: Prisma.AssignmentCreateNestedOneWithoutSubmissionsInput
   student: Prisma.UserCreateNestedOneWithoutSubmissionsInput
 }
@@ -658,6 +686,7 @@ export type SubmissionUncheckedCreateWithoutAttachmentsInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
 }
 
 export type SubmissionCreateOrConnectWithoutAttachmentsInput = {
@@ -682,6 +711,7 @@ export type SubmissionUpdateWithoutAttachmentsInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignment?: Prisma.AssignmentUpdateOneRequiredWithoutSubmissionsNestedInput
   student?: Prisma.UserUpdateOneRequiredWithoutSubmissionsNestedInput
 }
@@ -694,6 +724,7 @@ export type SubmissionUncheckedUpdateWithoutAttachmentsInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubmissionCreateManyStudentInput = {
@@ -703,6 +734,7 @@ export type SubmissionCreateManyStudentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
 }
 
 export type SubmissionUpdateWithoutStudentInput = {
@@ -711,6 +743,7 @@ export type SubmissionUpdateWithoutStudentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignment?: Prisma.AssignmentUpdateOneRequiredWithoutSubmissionsNestedInput
   attachments?: Prisma.SubmissionAttachmentUpdateManyWithoutSubmissionNestedInput
 }
@@ -722,6 +755,7 @@ export type SubmissionUncheckedUpdateWithoutStudentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedUpdateManyWithoutSubmissionNestedInput
 }
 
@@ -732,6 +766,7 @@ export type SubmissionUncheckedUpdateManyWithoutStudentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SubmissionCreateManyAssignmentInput = {
@@ -741,6 +776,7 @@ export type SubmissionCreateManyAssignmentInput = {
   feedback?: string | null
   submittedAt?: Date | string
   status?: $Enums.SubmissionStatus
+  note?: string | null
 }
 
 export type SubmissionUpdateWithoutAssignmentInput = {
@@ -749,6 +785,7 @@ export type SubmissionUpdateWithoutAssignmentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   student?: Prisma.UserUpdateOneRequiredWithoutSubmissionsNestedInput
   attachments?: Prisma.SubmissionAttachmentUpdateManyWithoutSubmissionNestedInput
 }
@@ -760,6 +797,7 @@ export type SubmissionUncheckedUpdateWithoutAssignmentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachments?: Prisma.SubmissionAttachmentUncheckedUpdateManyWithoutSubmissionNestedInput
 }
 
@@ -770,6 +808,7 @@ export type SubmissionUncheckedUpdateManyWithoutAssignmentInput = {
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -811,6 +850,7 @@ export type SubmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   feedback?: boolean
   submittedAt?: boolean
   status?: boolean
+  note?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   attachments?: boolean | Prisma.Submission$attachmentsArgs<ExtArgs>
@@ -825,6 +865,7 @@ export type SubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   feedback?: boolean
   submittedAt?: boolean
   status?: boolean
+  note?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["submission"]>
@@ -837,6 +878,7 @@ export type SubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   feedback?: boolean
   submittedAt?: boolean
   status?: boolean
+  note?: boolean
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["submission"]>
@@ -849,9 +891,10 @@ export type SubmissionSelectScalar = {
   feedback?: boolean
   submittedAt?: boolean
   status?: boolean
+  note?: boolean
 }
 
-export type SubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assignmentId" | "studentId" | "grade" | "feedback" | "submittedAt" | "status", ExtArgs["result"]["submission"]>
+export type SubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assignmentId" | "studentId" | "grade" | "feedback" | "submittedAt" | "status" | "note", ExtArgs["result"]["submission"]>
 export type SubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignment?: boolean | Prisma.AssignmentDefaultArgs<ExtArgs>
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -882,6 +925,7 @@ export type $SubmissionPayload<ExtArgs extends runtime.Types.Extensions.Internal
     feedback: string | null
     submittedAt: Date
     status: $Enums.SubmissionStatus
+    note: string | null
   }, ExtArgs["result"]["submission"]>
   composites: {}
 }
@@ -1315,6 +1359,7 @@ export interface SubmissionFieldRefs {
   readonly feedback: Prisma.FieldRef<"Submission", 'String'>
   readonly submittedAt: Prisma.FieldRef<"Submission", 'DateTime'>
   readonly status: Prisma.FieldRef<"Submission", 'SubmissionStatus'>
+  readonly note: Prisma.FieldRef<"Submission", 'String'>
 }
     
 

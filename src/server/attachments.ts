@@ -7,6 +7,7 @@ const createAssignmentAttachments = createServerFn({ method: "POST" })
     (data: {
       assignmentId: string
       attachments: {
+        fileType: string
         url: string
         position: number
       }[]
@@ -27,4 +28,31 @@ const createAssignmentAttachments = createServerFn({ method: "POST" })
     })
   })
 
-export { createAssignmentAttachments }
+const createSubmissionAttachments = createServerFn({ method: "POST" })
+  .validator(
+    (data: {
+      submissionId: string
+      attachments: {
+        fileType: string
+        url: string
+        position: number
+      }[]
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    const session = await getSession()
+    if (!session) throw new Error("Unauthorized")
+
+    const { submissionId, attachments } = data
+
+    await prisma.submissionAttachment.createMany({
+      data: attachments.map(({ fileType, url, position }) => ({
+        submissionId,
+        fileType,
+        url,
+        position,
+      })),
+    })
+  })
+
+export { createAssignmentAttachments, createSubmissionAttachments }
