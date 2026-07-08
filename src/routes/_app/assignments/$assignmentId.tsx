@@ -519,7 +519,7 @@ function AssignmentPage() {
       <SubmissionPanel
         open={submissionOpen}
         onOpenChange={setSubmissionOpen}
-        submissionId={submissions[0].id}
+        submissionId={submissions[0]?.id ?? ""}
       />
     </>
   )
