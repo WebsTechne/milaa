@@ -89,6 +89,9 @@ function SubmitPanel({
         queryClient.invalidateQueries({
           queryKey: ["submissions"],
         })
+        queryClient.invalidateQueries({
+          queryKey: ["assignments", assignmentId],
+        })
 
         form.reset()
         onOpenChange(false)
@@ -134,7 +137,9 @@ function SubmitPanel({
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Attachments</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>
+                        Attachments (max 20MB)
+                      </FieldLabel>
                       <DropZone
                         onFiles={(files) => field.handleChange(files)}
                         format={format}

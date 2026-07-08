@@ -45,6 +45,7 @@ import {
 } from "#/components/ui/alert-dialog"
 import { enrollInCourse } from "#/server/courses"
 import { SubmitPanel } from "#/components/assignments/submit-panel"
+import { SubmissionPanel } from "#/components/assignments/submission-panel"
 
 export const Route = createFileRoute("/_app/assignments/$assignmentId")({
   component: AssignmentPage,
@@ -58,6 +59,7 @@ function AssignmentPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [joinCourseDialog, setJoinCourseDialog] = useState(false)
   const [submitOpen, setSubmitOpen] = useState(false)
+  const [submissionOpen, setSubmissionOpen] = useState(false)
 
   const { data: session, isPending: authPending } = authClient.useSession()
 
@@ -86,8 +88,9 @@ function AssignmentPage() {
       return
     }
 
-    const enrolled = assignment.isEnrolled
-    if (!enrolled) setJoinCourseDialog(true)
+    const notEnrolled = !assignment.isEnrolled
+    if (notEnrolled) setJoinCourseDialog(true)
+    const hasSubmitted = assignment.submissions.length > 0
 
     setFooterSlot(
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-4">
@@ -95,10 +98,18 @@ function AssignmentPage() {
           size="lg"
           className="hover:bg-primary! pointer-events-auto h-11 w-9/10 max-w-90 shadow-(--shadow-sm)"
           onClick={() =>
-            !enrolled ? setJoinCourseDialog(true) : setSubmitOpen(true)
+            notEnrolled
+              ? setJoinCourseDialog(true)
+              : hasSubmitted
+                ? setSubmissionOpen(true)
+                : setSubmitOpen(true)
           }
         >
-          {!enrolled ? "Join Course" : "Submit"}
+          {notEnrolled
+            ? "Join Course"
+            : hasSubmitted
+              ? "View Submission"
+              : "Submit"}
         </Button>
       </div>,
     )
@@ -210,6 +221,7 @@ function AssignmentPage() {
     status,
     teacher,
     title,
+    submissions,
   } = assignment
 
   const handleCopyCode = async () => {
@@ -266,7 +278,11 @@ function AssignmentPage() {
             </Link>
 
             <span className="rounded-full border border-green-700/50 bg-green-500/10 px-3 py-1 text-green-500">
-              {status === "ACTIVE" ? "Open" : "Closed"}
+              {submissions.length > 0
+                ? "Submitted"
+                : status === "ACTIVE"
+                  ? "Open"
+                  : "Closed"}
             </span>
 
             <span
@@ -351,8 +367,8 @@ function AssignmentPage() {
           <h3 className="text-muted-foreground font-heading text-sm font-semibold tracking-wide">
             DETAILS
           </h3>
-          <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="bg-muted space-y-1 rounded-lg border p-3">
                 <p className="text-muted-foreground text-sm">Max score</p>
                 <p className="font-heading text-lg font-semibold">{maxScore}</p>
@@ -498,6 +514,12 @@ function AssignmentPage() {
         onOpenChange={setSubmitOpen}
         format={allowedFormats}
         assignmentId={assignmentId}
+      />
+
+      <SubmissionPanel
+        open={submissionOpen}
+        onOpenChange={setSubmissionOpen}
+        submissionId={submissions[0].id}
       />
     </>
   )

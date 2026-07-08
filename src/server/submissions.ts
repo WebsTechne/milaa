@@ -23,6 +23,30 @@ const createSubmission = createServerFn({ method: "POST" })
     }
   })
 
+const getSubmissionById = createServerFn({ method: "GET" })
+  .validator((data: { submissionId: string }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const submission = await prisma.submission.findFirst({
+        where: { id: data.submissionId },
+        select: {
+          submittedAt: true,
+          note: true,
+          attachments: {
+            select: { id: true, fileType: true, url: true },
+            orderBy: { position: "asc" },
+          },
+          grade: true,
+          feedback: true,
+        },
+      })
+      return submission
+    } catch (err) {
+      console.error("❌ getSubmissionById error:", err)
+      throw err
+    }
+  })
+
 const deleteSubmission = createServerFn({ method: "POST" })
   .validator((data: { submissionId: string }) => data)
   .handler(async ({ data }) => {
@@ -37,4 +61,4 @@ const deleteSubmission = createServerFn({ method: "POST" })
     })
   })
 
-export { createSubmission, deleteSubmission }
+export { createSubmission, getSubmissionById, deleteSubmission }

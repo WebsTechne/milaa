@@ -17,6 +17,10 @@ const getAssignmentById = createServerFn({ method: "GET" })
           course: { select: { id: true, code: true, name: true } },
           attachments: { orderBy: { position: "asc" } },
           teacher: { select: { firstName: true, lastName: true, image: true } },
+          submissions: {
+            where: { studentId: session.user.id },
+            select: { id: true },
+          },
           _count: { select: { submissions: true } },
         },
       })
