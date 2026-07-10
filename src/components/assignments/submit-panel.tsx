@@ -24,7 +24,7 @@ import { createSubmissionAttachments } from "#/server/attachments"
 
 const formSchema = z.object({
   note: z.string().optional(),
-  attachments: z.array(z.file()),
+  attachments: z.array(z.file()).min(1, "At least one attachment is required"),
 })
 
 function SubmitPanel({

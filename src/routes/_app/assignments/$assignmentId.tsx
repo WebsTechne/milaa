@@ -389,6 +389,7 @@ function AssignmentPage() {
                     : dueLabel.urgency === "soon"
                       ? "border-amber-700/50 bg-amber-500/10 text-amber-500"
                       : "text-foreground bg-muted",
+                  submissions.length > 0 && "opacity-50",
                 )}
               >
                 <p
