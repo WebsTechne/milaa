@@ -18,6 +18,7 @@ import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index
 import { Route as AppCoursesIndexRouteImport } from './routes/_app/courses/index'
 import { Route as AppAssignmentsIndexRouteImport } from './routes/_app/assignments/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppSubmissionsSubmissionIdRouteImport } from './routes/_app/submissions/$submissionId'
 import { Route as AppCoursesCourseIdRouteImport } from './routes/_app/courses/$courseId'
 import { Route as AppAssignmentsAssignmentIdRouteImport } from './routes/_app/assignments/$assignmentId'
 
@@ -65,6 +66,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSubmissionsSubmissionIdRoute =
+  AppSubmissionsSubmissionIdRouteImport.update({
+    id: '/submissions/$submissionId',
+    path: '/submissions/$submissionId',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppCoursesCourseIdRoute = AppCoursesCourseIdRouteImport.update({
   id: '/courses/$courseId',
   path: '/courses/$courseId',
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/courses/$courseId': typeof AppCoursesCourseIdRoute
+  '/submissions/$submissionId': typeof AppSubmissionsSubmissionIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments/': typeof AppAssignmentsIndexRoute
   '/courses/': typeof AppCoursesIndexRoute
@@ -95,6 +103,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/courses/$courseId': typeof AppCoursesCourseIdRoute
+  '/submissions/$submissionId': typeof AppSubmissionsSubmissionIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/assignments': typeof AppAssignmentsIndexRoute
   '/courses': typeof AppCoursesIndexRoute
@@ -109,6 +118,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/assignments/$assignmentId': typeof AppAssignmentsAssignmentIdRoute
   '/_app/courses/$courseId': typeof AppCoursesCourseIdRoute
+  '/_app/submissions/$submissionId': typeof AppSubmissionsSubmissionIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_app/assignments/': typeof AppAssignmentsIndexRoute
   '/_app/courses/': typeof AppCoursesIndexRoute
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/assignments/$assignmentId'
     | '/courses/$courseId'
+    | '/submissions/$submissionId'
     | '/api/auth/$'
     | '/assignments/'
     | '/courses/'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/assignments/$assignmentId'
     | '/courses/$courseId'
+    | '/submissions/$submissionId'
     | '/api/auth/$'
     | '/assignments'
     | '/courses'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/assignments/$assignmentId'
     | '/_app/courses/$courseId'
+    | '/_app/submissions/$submissionId'
     | '/api/auth/$'
     | '/_app/assignments/'
     | '/_app/courses/'
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/submissions/$submissionId': {
+      id: '/_app/submissions/$submissionId'
+      path: '/submissions/$submissionId'
+      fullPath: '/submissions/$submissionId'
+      preLoaderRoute: typeof AppSubmissionsSubmissionIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/courses/$courseId': {
       id: '/_app/courses/$courseId'
       path: '/courses/$courseId'
@@ -248,6 +268,7 @@ interface AppRouteRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppAssignmentsAssignmentIdRoute: typeof AppAssignmentsAssignmentIdRoute
   AppCoursesCourseIdRoute: typeof AppCoursesCourseIdRoute
+  AppSubmissionsSubmissionIdRoute: typeof AppSubmissionsSubmissionIdRoute
   AppAssignmentsIndexRoute: typeof AppAssignmentsIndexRoute
   AppCoursesIndexRoute: typeof AppCoursesIndexRoute
 }
@@ -257,6 +278,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppAssignmentsAssignmentIdRoute: AppAssignmentsAssignmentIdRoute,
   AppCoursesCourseIdRoute: AppCoursesCourseIdRoute,
+  AppSubmissionsSubmissionIdRoute: AppSubmissionsSubmissionIdRoute,
   AppAssignmentsIndexRoute: AppAssignmentsIndexRoute,
   AppCoursesIndexRoute: AppCoursesIndexRoute,
 }

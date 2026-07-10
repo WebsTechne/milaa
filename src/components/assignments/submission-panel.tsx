@@ -6,13 +6,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../ui/sheet"
-import { Button } from "../ui/button"
+import { Button, buttonVariants } from "../ui/button"
 import { Field, FieldGroup, FieldLabel } from "../ui/field"
 import { Spinner } from "../ui/spinner"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { deleteSubmission, getSubmissionById } from "#/server/submissions"
 import { toast } from "sonner"
-import { IconTrash } from "@tabler/icons-react"
+import { IconArrowRight, IconTrash } from "@tabler/icons-react"
 import { format } from "date-fns"
 import { Link } from "@tanstack/react-router"
 import { getFileLabel } from "#/lib/file-label"
@@ -142,10 +142,22 @@ function SubmissionPanel({
                 </FieldGroup>
               </div>
 
-              <SheetFooter>
+              <SheetFooter className="flex-row">
+                <Link
+                  to="/submissions/$submissionId"
+                  params={{ submissionId }}
+                  className={buttonVariants({
+                    variant: "secondary",
+                    className: "h-10 flex-1",
+                  })}
+                >
+                  View submission
+                  <IconArrowRight />
+                </Link>
+
                 <Button
                   variant="destructive"
-                  className="h-10 w-full"
+                  className="h-10 flex-1"
                   onClick={() => setConfirmOpen(true)}
                 >
                   <IconTrash />
