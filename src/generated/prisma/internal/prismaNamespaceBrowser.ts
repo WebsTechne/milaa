@@ -213,6 +213,7 @@ export const SubmissionAttachmentScalarFieldEnum = {
   submissionId: 'submissionId',
   url: 'url',
   fileType: 'fileType',
+  fileName: 'fileName',
   position: 'position'
 } as const
 

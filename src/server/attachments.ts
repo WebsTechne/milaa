@@ -8,6 +8,7 @@ const createAssignmentAttachments = createServerFn({ method: "POST" })
       assignmentId: string
       attachments: {
         fileType: string
+        fileName: string
         url: string
         position: number
       }[]
@@ -34,6 +35,7 @@ const createSubmissionAttachments = createServerFn({ method: "POST" })
       submissionId: string
       attachments: {
         fileType: string
+        fileName: string
         url: string
         position: number
       }[]
@@ -46,13 +48,54 @@ const createSubmissionAttachments = createServerFn({ method: "POST" })
     const { submissionId, attachments } = data
 
     await prisma.submissionAttachment.createMany({
-      data: attachments.map(({ fileType, url, position }) => ({
+      data: attachments.map(({ fileType, fileName, url, position }) => ({
         submissionId,
         fileType,
+        fileName,
         url,
         position,
       })),
     })
   })
 
-export { createAssignmentAttachments, createSubmissionAttachments }
+const deleteAssignmentAttachments = createServerFn({ method: "POST" })
+	.validator((data: { attachmentIds: string[] }) => data)
+	.handler(async ({ data }) => {
+		const session = await getSession()
+		if (!session) throw new Error("Unauthorized")
+
+		try {
+			await prisma.assignmentAttachment.deleteMany({
+				where: {
+					id: {
+						in: data.attachmentIds,
+					},
+				},
+			})
+		} catch (err) {
+      console.error(err)
+      throw new Error("Failed to delete")
+    }
+	})
+
+const deleteSubmissionAttachments = createServerFn({ method: "POST" })
+	.validator((data: { attachmentIds: string[] }) => data)
+	.handler(async ({ data }) => {
+		const session = await getSession()
+		if (!session) throw new Error("Unauthorized")
+
+		try {
+			await prisma.submissionAttachment.deleteMany({
+				where: {
+					id: {
+						in: data.attachmentIds,
+					},
+				},
+			})
+		} catch (err) {
+      console.error(err)
+      throw new Error("Failed to delete")
+    }
+	})
+
+export { createAssignmentAttachments, createSubmissionAttachments, deleteAssignmentAttachments, deleteSubmissionAttachments }

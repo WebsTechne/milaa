@@ -33,7 +33,7 @@ const getSubmissionById = createServerFn({ method: "GET" })
           submittedAt: true,
           note: true,
           attachments: {
-            select: { id: true, fileType: true, url: true },
+            select: { id: true, fileType: true, fileName: true, url: true },
             orderBy: { position: "asc" },
           },
           grade: true,

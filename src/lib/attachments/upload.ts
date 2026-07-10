@@ -78,7 +78,7 @@ async function uploadAttachment(
     .from(bucket)
     .getPublicUrl(data.path)
 
-  return { url: publicData.publicUrl, position, fileType: file.type }
+  return { url: publicData.publicUrl, position, fileType: file.type, fileName: file.name }
 }
 
 async function uploadAttachments(

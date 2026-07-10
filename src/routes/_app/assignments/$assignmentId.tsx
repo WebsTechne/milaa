@@ -115,7 +115,13 @@ function AssignmentPage() {
     )
 
     return () => setFooterSlot(null)
-  }, [authPending, isStudent, assignment?.isEnrolled, setFooterSlot])
+  }, [
+    authPending,
+    isStudent,
+    assignment?.isEnrolled,
+    assignment?.submissions.length,
+    setFooterSlot,
+  ])
 
   useEffect(() => {
     if (lightboxIndex === null || !attachments.length) return
@@ -293,6 +299,7 @@ function AssignmentPage() {
                   : dueLabel.urgency === "soon"
                     ? "border-amber-700/50 bg-amber-500/10 text-amber-500"
                     : "text-muted-foreground bg-muted",
+                submissions.length > 0 && "opacity-50",
               )}
             >
               <IconClock size={16} />

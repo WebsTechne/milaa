@@ -169,6 +169,7 @@ model SubmissionAttachment {
   submissionId String
   url          String
   fileType     String
+  fileName     String
   position     Int
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 }

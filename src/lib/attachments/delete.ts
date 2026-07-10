@@ -14,8 +14,8 @@ function getStoragePath(url: string, bucket: AttachmentBucket) {
 
 async function deleteSupabaseAttachments(
   raw: string[],
-  assignmentId: string,
   type: Attachment,
+  assignmentOrSubmissionId: string,
 ) {
   const bucket =
     type === "assignment" ? "assignment-attachments" : "submission-attachments"
@@ -25,7 +25,7 @@ async function deleteSupabaseAttachments(
   const { error } = await supabase.storage.from(bucket).remove(filePaths)
 
   if (error) {
-    console.error("Attachment delete failed:", { raw, assignmentId, error })
+    console.error("Attachment delete failed:", { raw, assignmentOrSubmissionId, error })
     throw error
   }
   return { data: `${raw.length} attachments deleted successfully` }
