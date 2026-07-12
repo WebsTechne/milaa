@@ -38,6 +38,19 @@ const getSubmissionById = createServerFn({ method: "GET" })
           },
           grade: true,
           feedback: true,
+          //
+          assignmentId: true,
+          assignment: {
+            select: {
+              title: true,
+              course: { select: { id: true, name: true } },
+              teacherId: true,
+              teacher: {
+                select: { firstName: true, lastName: true, image: true },
+              },
+            },
+          },
+          studentId: true,
         },
       })
       return submission
