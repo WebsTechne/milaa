@@ -12,8 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "#/components/ui/avatar"
 import getInitials from "#/lib/name"
 import { authClient } from "#/lib/auth-client"
-import { useFooterStore, useHeaderStore } from "#/lib/store"
-import { cn } from "#/lib/utils"
+import { useHeaderStore } from "#/lib/store"
 import { deleteSubmission, getSubmissionById } from "#/server/submissions"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
@@ -43,7 +42,6 @@ function RouteComponent() {
   const { data: session, isPending: authPending } = authClient.useSession()
 
   const setTitleSlot = useHeaderStore((s) => s.setTitleSlot)
-  const setFooterSlot = useFooterStore((s) => s.setFooterSlot)
 
   const { submissionId } = useParams({
     from: "/_app/submissions/$submissionId",
@@ -249,7 +247,7 @@ function RouteComponent() {
             ATTACHMENTS ({attachments.length})
           </h3>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3">
             {attachments.map(({ id, fileName, url, fileType }) => (
               <div className="min-h-40">
                 {fileType.startsWith("image/") ? (
@@ -282,12 +280,12 @@ function RouteComponent() {
 
         <Separator />
 
-        <div className="pointer-events-none inset-x-0 flex justify-center px-4">
+        <div className="pointer-events-none inset-x-0 flex justify-center">
           <Button
             size="lg"
             variant="destructive"
-            className="pointer-events-auto h-11 w-9/10 max-w-90"
-            onClick={handleDeleteSubmission}
+            className="pointer-events-auto h-11 w-full max-w-90"
+            onClick={() => setConfirmOpen(true)}
           >
             <IconTrash />
             Delete Submission

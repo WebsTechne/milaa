@@ -303,7 +303,7 @@ function AssignmentPage() {
               )}
             >
               <IconClock size={16} />
-              {dueLabel.label}
+              {dueLabel.heading}
             </span>
           </div>
 

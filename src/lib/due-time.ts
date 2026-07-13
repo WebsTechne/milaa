@@ -43,8 +43,8 @@ const getDueLabel = (date: Date): DueData => {
   if (daysTill < 0) {
     if (daysTill >= -13)
       return {
-        label: `Overdue (${Math.abs(daysTill)} days)`,
-        heading: `${Math.abs(daysTill)} days`,
+        label: `Overdue (${Math.abs(daysTill)} day${daysTill === -1 && "s"})`,
+        heading: "Overdue",
         urgency: "urgent",
       }
     return {
